@@ -2,6 +2,7 @@ package tzdata
 
 import (
     "fmt"
+    "time"
 )
 
 // TZdata collects time offsets and offset-transitions for a geographical area.
@@ -58,4 +59,59 @@ func (tzd *TZdata) PrintRaw() {
             trans.Isutc)
     }
     fmt.Printf("    TZ variable: %s\n", tzd.Extend)
+}
+
+func (tzd *TZdata) PrintProcessed() {
+    fmt.Printf("\nProcessed data for %s:\n", tzd.Name)
+    transitionsCount := len(tzd.Trans)
+
+    // If no transitions defined,
+    // consider the last entry in eras slice as the current era.
+    if transitionsCount == 0 {
+        fmt.Println("!! No transitions defined. Will pick last defined era...")
+        fmt.Printf("    current era: %s\n", tzd.Eras[len(tzd.Eras)-1].Name)
+        fmt.Printf("        offset : %v\n", tzd.Eras[len(tzd.Eras)-1].Offset)
+        fmt.Printf("        end    : unknown\n")
+        return
+    }
+
+    // Transitions are always sorted in ascending order...
+    now := time.Now()
+    nowEpoch := now.Unix()
+    foundTransition := false
+    nextTransIndex := 0
+    for ; nextTransIndex < transitionsCount; nextTransIndex++ {
+        if nowEpoch < tzd.Trans[nextTransIndex].When {
+            foundTransition = true
+            break
+        }
+    }
+
+    // If no transitions ahead,
+    // current era is defined by the last transition.
+    if !foundTransition {
+        fmt.Println("!! No transitions in foreseeable future. Last transition determines current era.")
+        fmt.Printf("    current era: %s\n", tzd.Eras[tzd.Trans[transitionsCount-1].Index].Name)
+        fmt.Printf("        offset : %v\n", tzd.Eras[tzd.Trans[transitionsCount-1].Index].Offset)
+        fmt.Printf("        end    : gnab gib :-)\n")
+        return
+    }
+
+    // The immediately previous transition specifies the name of current era.
+    // If the next transition is the first in the slice, there is no certan way
+    // to deduce the name of the current era.
+    if nextTransIndex == 0 {
+        fmt.Printf("!! No past transition found. Cannot deduce name of curent era. Aborting...")
+        return
+    }
+
+    fmt.Printf("    current era: %s\n", tzd.Eras[tzd.Trans[nextTransIndex-1].Index].Name)
+    fmt.Printf("        offset : %v\n", tzd.Eras[tzd.Trans[nextTransIndex-1].Index].Offset)
+    end := time.Unix(tzd.Trans[nextTransIndex].When-1, 0)
+    fmt.Printf("        end    : (%v) %s\n", tzd.Trans[nextTransIndex].When-1, end.Format("Mon, 02 01 2006 15:04:05"))
+
+    fmt.Printf("    comming era: %s\n", tzd.Eras[tzd.Trans[nextTransIndex].Index].Name)
+    fmt.Printf("        offset : %v\n", tzd.Eras[tzd.Trans[nextTransIndex].Index].Offset)
+    start := time.Unix(tzd.Trans[nextTransIndex].When, 0)
+    fmt.Printf("        start  : (%v) %s\n", tzd.Trans[nextTransIndex].When, start.Format("Mon, 02 01 2006 15:04:05"))
 }
