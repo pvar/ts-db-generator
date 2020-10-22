@@ -1,3 +1,14 @@
+// tzdata parses zones and transitions from timezone files.
+// tzdata is actually the part of time package that handles
+// locations. The code is stripped down to the absolute
+// minimum, in order to only run on Linux and always use
+// the timezone files installed on the system. All available
+// data are exposed and some methods for printing data
+// in a meaningful(*) way have been added.
+//
+// (*) Yes, tzdata was built with a specific application in mind
+// and it is doubtful it will be of any use to others.
+
 package tzdata
 
 import (
