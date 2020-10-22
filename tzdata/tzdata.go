@@ -1,5 +1,9 @@
 package tzdata
 
+import (
+    "fmt"
+)
+
 // TZdata collects time offsets and offset-transitions for a geographical area.
 // Typically, the TZdata struct represents the collection of time offsets
 // in use in a geographical area. For many Locations the time offset varies
@@ -30,4 +34,28 @@ type EraTrans struct {
     Isstd, Isutc bool  // seems to be ignored
     // supposed to indicate whether transition time (When)
     // expressed in UTC or local
+}
+
+func (tzd *TZdata) PrintRaw() {
+    fmt.Printf("\nRaw data for %q.\n", tzd.Name)
+
+    fmt.Printf("    era names:\n")
+    for i, era := range tzd.Eras {
+        fmt.Printf("        [%v] name: %-5s offset: %-6v DST: %v\n",
+            i,
+            era.Name,
+            era.Offset,
+            era.IsDST)
+    }
+    fmt.Printf("    transitions:\n")
+    for i, trans := range tzd.Trans {
+        fmt.Printf("        [%v] era: (%v) %-6s unix time: %-12v {isstd: %v, isutc: %v}\n",
+            i,
+            trans.Index,
+            tzd.Eras[trans.Index].Name,
+            trans.When,
+            trans.Isstd,
+            trans.Isutc)
+    }
+    fmt.Printf("    TZ variable: %s\n", tzd.Extend)
 }
