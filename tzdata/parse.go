@@ -6,7 +6,7 @@ import (
     "time"
 )
 
-var badData = errors.New("tzdata: malformed timezone file.")
+var badData = errors.New("tzdata: malformed timezone file")
 
 // Simple I/O interface to binary blob of data.
 type dataIO struct {

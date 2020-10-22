@@ -23,12 +23,14 @@ func readTZfile(name string) (z *TZdata, firstErr error) {
                 var rawTZdata, err = loadFile(file)
 
                 if err == nil {
-                        if data, err := parseRawTZdata(name, rawTZdata); err == nil {
+                        data, err := parseRawTZdata(name, rawTZdata)
+                        if err == nil {
                                 return data, nil
                         }
+                        return nil, err
                 }
         }
-        return nil, errors.New("unknown time zone " + name)
+        return nil, errors.New("tzdata: unknown time zone " + name)
 }
 
 // loadFile reads and returns the content of the named file.
