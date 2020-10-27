@@ -78,26 +78,33 @@ func AddReplicas (replicas []string, prototypeName string) error {
     return nil
 }
 
-//
-//
-//
-func UpdateReplicas (replicaName, prototypeName string) error {
+// UpdateReplica updates the prototype timezone linked to the specified replica.
+func UpdateReplica (replicaName, prototypeName string) error {
     if !open {
         return noConn
     }
 
-    prototypeID, err := getPrototypeByName (prototypeName)
+    var id int64
+    id, err := getPrototypeByName (prototypeName)
     if err != nil {
-        // specified prototype cannot be found, will attempt to add it...
-        // the following prototype is hollow -- it lacks all useful data
-        _, err := AddPrototype (prototypeName)
+        // specified prototype cannot be found.
+        // Attempt to add it and get ID of new entry.
+        id, err = AddPrototype (prototypeName)
         if err != nil {
-            // failed trying to append specified prototype
             return err
         }
     }
 
-    err = updateReplica (replicaName, prototypeID)
+    fields := getReplicaCols()
+    query := fmt.Sprintf("UPDATE userinfo SET %s=? WHERE %s=%s", fields[2], fields[1], replicaName)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(id)
     return err
 }
 
