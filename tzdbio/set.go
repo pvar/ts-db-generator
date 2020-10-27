@@ -9,6 +9,10 @@ import (
 // The rest of the data remain uninitialized. This function is mainly used
 // during initial setup, to populate table with available prototypes.
 func AddPrototype (prototypeName string) (id int64, err error) {
+    if !open {
+        return -1, noConn
+    }
+
     fields := getPrototypeCols()
     query := fmt.Sprintf("INSERT INTO prototypes (%s, %s) VALUES(?, ?)", fields[1], fields[5])
 
@@ -39,6 +43,10 @@ func AddPrototype (prototypeName string) (id int64, err error) {
 // extra entry. This function is mainly used during initial setup,
 // to populate table with replicas.
 func AddReplicas (replicas []string, prototypeName string) error {
+    if !open {
+        return noConn
+    }
+
     fields := getReplicaCols()
     query := fmt.Sprintf("INSERT INTO replicas (%s, %s) VALUES(?, ?)", fields[1], fields[2])
 
@@ -57,7 +65,6 @@ func AddReplicas (replicas []string, prototypeName string) error {
         if err != nil {
             return err
         }
-
     }
 
     // add each replica with the ID of the specified prototype
