@@ -74,7 +74,7 @@ func getZoneCols() []string {
 func getPrototypeSchema() string {
     fields := getPrototypeCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT NOT NULL, PRIMARY KEY(%q AUTOINCREMENT))",
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT NOT NULL, PRIMARY KEY(%q AUTOINCREMENT));",
                         prototypeTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[0])
 
     return schema
@@ -84,7 +84,7 @@ func getPrototypeSchema() string {
 func getReplicaSchema() string {
     fields := getReplicaCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER NOT NULL, PRIMARY KEY(%q AUTOINCREMENT))",
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER NOT NULL, PRIMARY KEY(%q AUTOINCREMENT));",
                         replicaTable, fields[0], fields[1], fields[2], fields[0])
 
     return schema
@@ -94,7 +94,7 @@ func getReplicaSchema() string {
 func getZoneSchema(name string) string {
     fields := getZoneCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER, %q INTEGER, %q INTEGER NOT NULL, %q INTEGER, PRIMARY KEY(%q AUTOINCREMENT))",
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER, %q INTEGER, %q INTEGER NOT NULL, %q INTEGER, PRIMARY KEY(%q AUTOINCREMENT));",
                         name, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[0])
 
     return schema

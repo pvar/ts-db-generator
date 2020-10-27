@@ -31,12 +31,12 @@ func Open (filename string) error {
 
     err = checkTable(prototypeTable)
     if err != nil {
-        createTable(getPrototypeSchema)
+        createTable(getPrototypeSchema())
     }
 
-    err := checkTable(replicaTable)
+    err = checkTable(replicaTable)
     if err != nil {
-        createTable(getReplicaSchema)
+        createTable(getReplicaSchema())
     }
 
     return nil
@@ -57,4 +57,17 @@ func checkTable(tableName string) error {
     row := db.QueryRow(query)
     err := row.Scan(&tempname)
     return err
+}
+
+func createTable(query string) error {
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    _, err = stmt.Exec()
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
