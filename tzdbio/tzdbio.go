@@ -1,6 +1,7 @@
 package tzdbio
 
 import (
+    "fmt"
     "errors"
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
@@ -9,31 +10,51 @@ import (
 var (
     db *sql.DB
     open bool
-    noConn = errors.New("tzdbio: no connection to any db file")
+    noConn  = errors.New("tzdbio: no connection to db")
+    noValid = errors.New("tzdbio: database seems empty")
 )
 
 func init () {
     open = false
 }
 
-func openDB (filename string) error {
-    dbObj, err := sql.Open("sqlite", filename)
+func Open (filename string) error {
+    dbObj, err := sql.Open("sqlite3", filename)
 
     if err != nil {
         open = false
-    } else {
-        open = true
-        db = dbObj
+        return err
     }
 
-    return err
+    open = true
+    db = dbObj
+
+    err = checkTable(prototypeTable)
+    if err != nil {
+        createTable(getPrototypeSchema)
+    }
+
+    err := checkTable(replicaTable)
+    if err != nil {
+        createTable(getReplicaSchema)
+    }
+
+    return nil
 }
 
-func closeDB () error {
+func Close () error {
     if !open {
         return noConn
     }
 
     db.Close()
     return nil
+}
+
+func checkTable(tableName string) error {
+    var tempname string
+    query := fmt.Sprintf("SELECT name FROM sqlite_master WHERE type='table' AND name='{%s}';", tableName)
+    row := db.QueryRow(query)
+    err := row.Scan(&tempname)
+    return err
 }
