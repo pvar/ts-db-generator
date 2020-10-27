@@ -66,33 +66,33 @@ func getReplicaPrototype (replica string) (prototypeID int, err error) {
 
 // getPrototypeByID retrieves data for a prototype with specified ID.
 func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
-    var name, zone, ztname string
+    var name, zone, ztname, tzdver string
     var id, ztver, offset int64
 
     columns := getPrototypeCols();
     query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[0], prototypeID)
-    err = db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver)
+    err = db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver, &tzdver)
     if err != nil {
         return nil, err
     }
 
-    prototype = &Prototype{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver}
+    prototype = &Prototype{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}
     return
 }
 
 // getPrototypeByName retrieves ID for a named prototype.
 func getPrototypeByName(prototypeName string) (*Prototype, error) {
-    var name, dzone, ztname string
+    var name, dzone, ztname, tzdver string
     var id, ztver, doffset int64
 
     columns := getPrototypeCols();
     query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[1], prototypeName)
-    err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver)
+    err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver, &tzdver)
     if err != nil {
         return nil, err
     }
 
-    return &Prototype{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver}, nil
+    return &Prototype{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
 }
 
 // getZones retrieves all zones from specified table.

@@ -14,6 +14,7 @@ type Prototype struct {
     DOffset int64       // Default Offset (when no zones are defined)
     TabName string
     TabVer  int64
+    TZDVer  string      // Version of TZ-data used to update sqlite database
 }
 
 // Replica defines a link to some timezone
@@ -34,7 +35,6 @@ type Zone struct {
 }
 
 const (
-    maxZoneTabCount int 16
     prototypeTable string = "prototype"
     replicaTable string = "replica"
 )
@@ -47,7 +47,8 @@ func getPrototypeCols() []string {
         "default_zone",
         "default_offset",
         "ztable_name",
-        "ztable_ver"}
+        "ztable_ver",
+        "tzdada_ver"}
 }
 
 // column names for table of replicas
@@ -73,8 +74,8 @@ func getZoneCols() []string {
 func getPrototypeSchema() string {
     fields := getPrototypeCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, PRIMARY KEY(%q AUTOINCREMENT))",
-                        prototypeTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[0])
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT NOT NULL, PRIMARY KEY(%q AUTOINCREMENT))",
+                        prototypeTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[0])
 
     return schema
 }
