@@ -36,9 +36,37 @@ func AddPrototype (prototypeName string) (id int64, err error) {
 
 // AddReplicas adds a new list of entries in the preplicas' table.
 // Each group of replicas contains the name of the original as an
-// extra entry. Mainly used during initial setup, to populate table
-// with replicas.
+// extra entry. This function is mainly used during initial setup,
+// to populate table with replicas.
 func AddReplicas (replicas []string, prototypeName string) error {
+    fields := getReplicaCols()
+    query := fmt.Sprintf("INSERT INTO replicas (%s, %s) VALUES(?, ?)", fields[1], fields[2])
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    id, err := getPrototypeByName(prototypeName)
+    if err != nil {
+        // Could not get ID for specified prototype.
+        // Attempt to add it and get ID of new entry.
+        id, err := AddPrototype (prototypeName)
+        if err != nil {
+            return err
+        }
+
+    }
+
+    // add each replica with the ID of the specified prototype
+    for _, replica := range replicas {
+        _, err := stmt.Exec(replica, id)
+        if err != nil {
+            return err
+        }
+    }
+
     return nil
 }
 
@@ -54,8 +82,7 @@ func UpdateReplicas (replicaName, prototypeName string) error {
     if err != nil {
         // specified prototype cannot be found, will attempt to add it...
         // the following prototype is hollow -- it lacks all useful data
-        newPrototype := Prototype{Name: prototypeName}
-        err := AddPrototype (newPrototype)
+        id, err := AddPrototype (prototypeName)
         if err != nil {
             // failed trying to append specified prototype
             return err
