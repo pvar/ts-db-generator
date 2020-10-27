@@ -47,15 +47,6 @@ func AddReplicas (replicas []string, prototypeName string) error {
         return noConn
     }
 
-    fields := getReplicaCols()
-    query := fmt.Sprintf("INSERT INTO replicas (%s, %s) VALUES(?, ?)", fields[1], fields[2])
-
-    stmt, err := db.Prepare(query)
-    if err != nil {
-        return err
-    }
-    defer stmt.Close()
-
     var id int64
     id, err = getPrototypeByName(prototypeName)
     if err != nil {
@@ -66,6 +57,15 @@ func AddReplicas (replicas []string, prototypeName string) error {
             return err
         }
     }
+
+    fields := getReplicaCols()
+    query := fmt.Sprintf("INSERT INTO replicas (%s, %s) VALUES(?, ?)", fields[1], fields[2])
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
 
     // add each replica with the ID of the specified prototype
     for _, replica := range replicas {
