@@ -38,6 +38,27 @@ func AddPrototype (prototypeName string) (id int64, err error) {
     return
 }
 
+// UpdatePrototype updates default zone and offset of a prototype timezone.
+func UpdatePrototype (prototype Prototype) error {
+    if !open {
+        return noConn
+    }
+
+    fields := getPrototypeCols()
+    query := fmt.Sprintf("UPDATE prototypes SET %s=? %s=? WHERE %s=%s",
+            fields[2], fields[3], fields[1], prototype.Name)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(prototype.DZone, prototype.DOffset)
+
+    return err
+}
+
 // AddReplicas adds a new list of entries in the preplicas' table.
 // Each group of replicas contains the name of the original as an
 // extra entry. This function is mainly used during initial setup,
