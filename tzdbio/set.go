@@ -123,16 +123,35 @@ func AddZones (prototypeName string, zones []Zone) error {
         return noConn
     }
 
-/*
-    prototypeID, err := getPrototypeID (prototypeName)
-    prototype, err := getPrototype (prototypeID)
+    prototype, err := getPrototypeByName(prototypeName)
+    if err != nil {
+        return err
+    }
 
-    // get name of most recent zone-table
-    // compare table contents with zones slice
-    // decide wht to do...
+    newZonesTable := fmt.Sprintf("%s%v", prototype.TabName, prototype.TabVer + 1)
+    createTable (newZonesTable)
 
-    err = createZones (newTableName, zones)
-*/
+    fields := getZoneCols()
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)", newZonesTable, fields[1], fields[2], fields[3], fields[4], fields[5])
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    var dst int
+    for _, zone := range zones {
+        if zone.IsDST {
+            dst = 1
+        } else {
+            dst = 0
+        }
+        _, err := stmt.Exec(zone.Name, zone.Start, zone.End, zone.Offset, dst)
+        if err != nil {
+            return err
+        }
+    }
 
     return nil
 }
