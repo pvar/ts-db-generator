@@ -1,5 +1,7 @@
 package tzdbio
 
+import "fmt"
+
 // Prototype defines a unique timezone
 // By unique, we mean that said timezone is not a link to
 // another one. It's kind of a prototype. All the zones
@@ -32,6 +34,7 @@ type Zone struct {
 }
 
 const (
+    maxZoneTabCount int 16
     prototypeTable string = "prototype"
     replicaTable string = "replica"
 )
@@ -64,4 +67,34 @@ func getZoneCols() []string {
         "zone_end",
         "zone_offset",
         "is_dst"}
+}
+
+// column names for table of prototypes
+func getPrototypeSchema() string {
+    fields := getPrototypeCols()
+
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, PRIMARY KEY(%q AUTOINCREMENT))",
+                        prototypeTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[0])
+
+    return schema
+}
+
+// column names for table of replicas
+func getReplicaSchema() string {
+    fields := getReplicaCols()
+
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER NOT NULL, PRIMARY KEY(%q AUTOINCREMENT))",
+                        replicaTable, fields[0], fields[1], fields[2], fields[0])
+
+    return schema
+}
+
+// column names for each tables of zones
+func getZoneSchema(name string) string {
+    fields := getZoneCols()
+
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER, %q INTEGER, %q INTEGER NOT NULL, %q INTEGER, PRIMARY KEY(%q AUTOINCREMENT))",
+                        name, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[0])
+
+    return schema
 }
