@@ -14,7 +14,7 @@ func AddPrototype (prototypeName string) (id int64, err error) {
     }
 
     fields := getPrototypeCols()
-    query := fmt.Sprintf("INSERT INTO prototypes (%s, %s) VALUES(?, ?)", fields[1], fields[5])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)", prototypeTable, fields[1], fields[5])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -45,8 +45,8 @@ func UpdatePrototype (prototype Prototype) error {
     }
 
     fields := getPrototypeCols()
-    query := fmt.Sprintf("UPDATE prototypes SET %s=? %s=? WHERE %s=%s",
-            fields[2], fields[3], fields[1], prototype.Name)
+    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
+            prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -74,7 +74,7 @@ func AddReplicas (replicas []string, prototypeName string) error {
     }
 
     fields := getReplicaCols()
-    query := fmt.Sprintf("INSERT INTO replicas (%s, %s) VALUES(?, ?)", fields[1], fields[2])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)", replicaTable, fields[1], fields[2])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -105,7 +105,7 @@ func UpdateReplica (replicaName, prototypeName string) error {
     }
 
     fields := getReplicaCols()
-    query := fmt.Sprintf("UPDATE userinfo SET %s=? WHERE %s=%s", fields[2], fields[1], replicaName)
+    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s", replicaTable, fields[2], fields[1], replicaName)
 
     stmt, err := db.Prepare(query)
     if err != nil {

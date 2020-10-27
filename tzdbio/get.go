@@ -54,7 +54,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
 // getReplicaPrototype retrieves the prototype-ID for specified replica.
 func getReplicaPrototype (replica string) (prototypeID int, err error) {
     columns := getReplicaCols();
-    query := fmt.Sprintf("SELECT %s FROM replicas WHERE %s=%s", columns[2], columns[1], replica)
+    query := fmt.Sprintf("SELECT %s FROM %s WHERE %s=%s", columns[2], replicaTable, columns[1], replica)
     err = db.QueryRow(query).Scan(&prototypeID)
 
     if err != nil {
@@ -70,7 +70,7 @@ func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
     var id, ztver, offset int64
 
     columns := getPrototypeCols();
-    query := fmt.Sprintf("SELECT * FROM prototypes WHERE %s=%v", columns[0], prototypeID)
+    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[0], prototypeID)
     err = db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver)
     if err != nil {
         return nil, err
@@ -86,7 +86,7 @@ func getPrototypeByName(prototypeName string) (*Prototype, error) {
     var id, ztver, doffset int64
 
     columns := getPrototypeCols();
-    query := fmt.Sprintf("SELECT * FROM prototypes WHERE %s=%v", columns[1], prototypeName)
+    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[1], prototypeName)
     err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver)
     if err != nil {
         return nil, err
@@ -96,8 +96,8 @@ func getPrototypeByName(prototypeName string) (*Prototype, error) {
 }
 
 // getZones retrieves all zones from specified table.
-func getZones (fullTableName string) (zones []Zone, err error) {
-    query := fmt.Sprintf("SELECT * FROM %s", fullTableName)
+func getZones (zoneTable string) (zones []Zone, err error) {
+    query := fmt.Sprintf("SELECT * FROM %s", zoneTable)
     rows, err := db.Query(query)
     defer  rows.Close()
     if err != nil {

@@ -31,6 +31,11 @@ type Zone struct {
     IsDST   bool
 }
 
+const (
+    prototypeTable string = "prototype"
+    replicaTable string = "replica"
+)
+
 // column names for table of prototypes
 func getPrototypeCols() []string {
     return []string{
