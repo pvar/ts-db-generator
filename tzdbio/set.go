@@ -117,10 +117,8 @@ func UpdateReplica (replicaName, prototypeName string) error {
     return err
 }
 
-//
-//
-// Used to add a new set of zones to an existing prototype.
-func AddZonesTable (prototypeName string, zones []Zone) error {
+// AddZones adds a new sub-table of zones, to the specified prototype timezone.
+func AddZones (prototypeName string, zones []Zone) error {
     if !open {
         return noConn
     }
@@ -139,13 +137,9 @@ func AddZonesTable (prototypeName string, zones []Zone) error {
     return nil
 }
 
-func createZones (updatedTableName string, zones []Zone) error {
-    return nil
-}
-
 // needPrototypeID retrieves ID for named prototype or creates it.
 func needPrototypeID (prototypeName string) (id int64, err error) {
-    id, err = getPrototypeByName(prototypeName)
+    prototype, err := getPrototypeByName(prototypeName)
     if err != nil {
         // Could not get ID for specified prototype.
         // Attempt to add it and get ID of new entry.
@@ -153,7 +147,8 @@ func needPrototypeID (prototypeName string) (id int64, err error) {
         if err != nil {
             return -1, err
         }
+        return id, nil
     }
 
-    return id, nil
+    return prototype.ID, nil
 }

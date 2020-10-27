@@ -6,24 +6,24 @@ package tzdbio
 // withing a specific timezone are defined in a separate
 // table.
 type Prototype struct {
-    ID      int
+    ID      int64
     Name    string
     DZone   string      // Default Zone (when no zones are defined)
     DOffset int64       // Default Offset (when no zones are defined)
     TabName string
-    TabVer  int
+    TabVer  int64
 }
 
 // Replica defines a link to some timezone
 type Replica struct {
-    ID      int
+    ID      int64
     Name    string
-    ProtoID int
+    ProtoID int64
 }
 
 // Zone defines a zone within a timezone
 type Zone struct {
-    ID      int
+    ID      int64
     Name    string
     Start   int64
     End     int64

@@ -7,8 +7,8 @@ import (
 
 // GetZones retrieves available zones for specified timezone.
 // The specified timezone is treated as a replica (link)
-// which is first translated to the corresponding prototype-timezone.
-// The table of prototype-timezones contains the name of the
+// which is first translated to the corresponding prototype timezone.
+// The table of prototype timezones contains the name of the
 // table with the corresponding zones.
 func GetZones (timezone string) (zones []Zone, err error) {
     if !open {
@@ -64,11 +64,10 @@ func getReplicaPrototype (replica string) (prototypeID int, err error) {
     return
 }
 
-// getPrototype retrieves data for a prototype with specified ID.
+// getPrototypeByID retrieves data for a prototype with specified ID.
 func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
     var name, zone, ztname string
-    var ztver, id int
-    var offset int64
+    var id, ztver, offset int64
 
     columns := getPrototypeCols();
     query := fmt.Sprintf("SELECT * FROM prototypes WHERE %s=%v", columns[0], prototypeID)
@@ -81,15 +80,19 @@ func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
     return
 }
 
-func getPrototypeByName(prototypeName string) (id int64, err error) {
+// getPrototypeByName retrieves ID for a named prototype.
+func getPrototypeByName(prototypeName string) (*Prototype, error) {
+    var name, dzone, ztname string
+    var id, ztver, doffset int64
+
     columns := getPrototypeCols();
-    query := fmt.Sprintf("SELECT %s FROM prototypes WHERE %s=%v", columns[0], columns[1], prototypeName)
-    err = db.QueryRow(query).Scan(&id)
+    query := fmt.Sprintf("SELECT * FROM prototypes WHERE %s=%v", columns[1], prototypeName)
+    err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver)
     if err != nil {
-        return -1, err
+        return nil, err
     }
 
-    return
+    return &Prototype{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver}, nil
 }
 
 // getZones retrieves all zones from specified table.
@@ -101,8 +104,7 @@ func getZones (fullTableName string) (zones []Zone, err error) {
         return nil, err
     }
 
-    var id int
-    var start, end, offset  int64
+    var id, start, end, offset int64
     var name string
     var isDST bool
 
