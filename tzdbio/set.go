@@ -48,11 +48,12 @@ func AddReplicas (replicas []string, prototypeName string) error {
     }
     defer stmt.Close()
 
-    id, err := getPrototypeByName(prototypeName)
+    var id int64
+    id, err = getPrototypeByName(prototypeName)
     if err != nil {
         // Could not get ID for specified prototype.
         // Attempt to add it and get ID of new entry.
-        id, err := AddPrototype (prototypeName)
+        id, err = AddPrototype (prototypeName)
         if err != nil {
             return err
         }
@@ -82,7 +83,7 @@ func UpdateReplicas (replicaName, prototypeName string) error {
     if err != nil {
         // specified prototype cannot be found, will attempt to add it...
         // the following prototype is hollow -- it lacks all useful data
-        id, err := AddPrototype (prototypeName)
+        _, err := AddPrototype (prototypeName)
         if err != nil {
             // failed trying to append specified prototype
             return err
@@ -115,9 +116,6 @@ func AddZonesTable (prototypeName string, zones []Zone) error {
     return nil
 }
 
-
-
-
 func updatePrototype (prototype Prototype) error {
     if !open {
         return noConn
@@ -131,6 +129,6 @@ func createZones (updatedTableName string, zones []Zone) error {
 }
 
 // update link of replica to prototype
-func updateReplica (name string, prototypeID int) error {
+func updateReplica (name string, prototypeID int64) error {
     return nil
 }
