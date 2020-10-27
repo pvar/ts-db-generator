@@ -87,6 +87,17 @@ func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
     return
 }
 
+func getPrototypeByName(prototypeName string) (id int64, err error) {
+    columns := getPrototypeCols();
+    query := fmt.Sprintf("SELECT %s FROM prototypes WHERE %s=%v", columns[0], columns[1], prototypeName)
+    err = db.QueryRow(query).Scan(&id)
+    if err != nil {
+        return -1, err
+    }
+
+    return
+}
+
 // getZones retrieves all zones from specified table.
 func getZones (fullTableName string) (zones []Zone, err error) {
     query := fmt.Sprintf("SELECT * FROM %s", fullTableName)
