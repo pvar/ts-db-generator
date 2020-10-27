@@ -47,15 +47,9 @@ func AddReplicas (replicas []string, prototypeName string) error {
         return noConn
     }
 
-    var id int64
-    id, err = getPrototypeByName(prototypeName)
+    id, err := needPrototypeID(prototypeName)
     if err != nil {
-        // Could not get ID for specified prototype.
-        // Attempt to add it and get ID of new entry.
-        id, err = AddPrototype (prototypeName)
-        if err != nil {
-            return err
-        }
+        return err
     }
 
     fields := getReplicaCols()
@@ -84,15 +78,9 @@ func UpdateReplica (replicaName, prototypeName string) error {
         return noConn
     }
 
-    var id int64
-    id, err := getPrototypeByName (prototypeName)
+    id, err := needPrototypeID(prototypeName)
     if err != nil {
-        // specified prototype cannot be found.
-        // Attempt to add it and get ID of new entry.
-        id, err = AddPrototype (prototypeName)
-        if err != nil {
-            return err
-        }
+        return err
     }
 
     fields := getReplicaCols()
@@ -130,19 +118,21 @@ func AddZonesTable (prototypeName string, zones []Zone) error {
     return nil
 }
 
-func updatePrototype (prototype Prototype) error {
-    if !open {
-        return noConn
-    }
-
-    return nil
-}
-
 func createZones (updatedTableName string, zones []Zone) error {
     return nil
 }
 
-// update link of replica to prototype
-func updateReplica (name string, prototypeID int64) error {
-    return nil
+// needPrototypeID retrieves ID for named prototype or creates it.
+func needPrototypeID (prototypeName string) (id int64, err error) {
+    id, err = getPrototypeByName(prototypeName)
+    if err != nil {
+        // Could not get ID for specified prototype.
+        // Attempt to add it and get ID of new entry.
+        id, err = AddPrototype (prototypeName)
+        if err != nil {
+            return -1, err
+        }
+    }
+
+    return id, nil
 }
