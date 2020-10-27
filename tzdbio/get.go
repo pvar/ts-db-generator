@@ -53,12 +53,6 @@ func GetZones (timezone string) (zones []Zone, err error) {
 
 // getReplicaPrototype retrieves the prototype-ID for specified replica.
 func getReplicaPrototype (replica string) (prototypeID int, err error) {
-
-    if !open {
-        fmt.Printf("Database not found!\n")
-        return
-    }
-
     columns := getReplicaCols();
     query := fmt.Sprintf("SELECT %s FROM replicas WHERE %s=%s", columns[2], columns[1], replica)
     err = db.QueryRow(query).Scan(&prototypeID)
