@@ -41,6 +41,35 @@ func TestAddFullOriginal(t *testing.T) {
         }
 }
 
+func TestAddZones(t *testing.T) {
+        var original = "Lamia"
+        var zones = []Zone{
+        {ID: 1, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 2, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 3, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 4, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 5, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 6, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 7, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 8, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 9, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 10, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 11, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 12, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 13, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 14, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false},
+        {ID: 15, Name: "kalokairi", Start: 1234, End: 5678, Offset: 1589, IsDST: true},
+        {ID: 16, Name: "xeimonas", Start: 5678, End: 1234, Offset: 1581, IsDST: false}}
+
+        err := AddZones(original, zones)
+        if err != nil {
+                fmt.Printf("Failed to add zones to original %q\n", original)
+                t.Errorf("%s", err)
+        } else {
+                fmt.Printf("Added %d zones to original %q\n", len(zones), original)
+        }
+}
+
 func TestAddReplica(t *testing.T) {
         replicas := []struct{replica, original string} {
                 {"Lamia", "Lamia"},
