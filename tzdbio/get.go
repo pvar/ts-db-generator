@@ -35,6 +35,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
     tableOk := false
     for i := original.TabVer; i >= 0; i-- {
         zoneTable := fmt.Sprintf("%s%v", original.TabName, i)
+fmt.Printf("\n\tLooking for table %q\n", zoneTable)
         zones, err = getZones (zoneTable)
         if err != nil {
             // zone table unreliable
@@ -96,6 +97,11 @@ func getOriginalByName(originalTZ string) (*Original, error) {
 
 // getZones retrieves all zones from specified table.
 func getZones (zoneTable string) (zones []Zone, err error) {
+    err = checkTable(zoneTable)
+    if err != nil {
+        return nil, err
+    }
+
     query := fmt.Sprintf("SELECT * FROM %s", zoneTable)
     rows, err := db.Query(query)
     defer  rows.Close()
