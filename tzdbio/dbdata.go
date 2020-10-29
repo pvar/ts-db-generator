@@ -34,7 +34,7 @@ type Zone struct {
 }
 
 const (
-    originalTable string = "prototype"
+    originalTable string = "original"
     replicaTable string = "replica"
 )
 
@@ -42,11 +42,11 @@ const (
 func getOriginalCols() []string {
     return []string{
         "id",
-        "prototype_name",
+        "name",
         "default_zone",
         "default_offset",
-        "ztable_name",
-        "ztable_ver",
+        "zones_tab_name",
+        "zones_tab_ver",
         "tzdada_ver"}
 }
 
@@ -54,18 +54,18 @@ func getOriginalCols() []string {
 func getReplicaCols() []string {
     return []string{
         "id",
-        "replica_name",
-        "prototype_id"}
+        "name",
+        "original_id"}
 }
 
 // column names for each tables of zones
 func getZoneCols() []string {
     return []string{
         "id",
-        "zone_abbrev",
-        "zone_start",
-        "zone_end",
-        "zone_offset",
+        "abbrev",
+        "start",
+        "end",
+        "offset",
         "is_dst"}
 }
 
@@ -82,9 +82,10 @@ func getOriginalSchema() string {
 // column names for table of replicas
 func getReplicaSchema() string {
     fields := getReplicaCols()
+    fgnfields := getOriginalCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER NOT NULL, PRIMARY KEY(%q AUTOINCREMENT));",
-                        replicaTable, fields[0], fields[1], fields[2], fields[0])
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q INTEGER NOT NULL, PRIMARY KEY(%q AUTOINCREMENT), FOREIGN KEY(%q) REFERENCES %s(%q));",
+                        replicaTable, fields[0], fields[1], fields[2], fields[0], fields[2], originalTable, fgnfields[0])
 
     return schema
 }
