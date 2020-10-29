@@ -37,8 +37,8 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     }
 
     fields := getOriginalCols()
-    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)",
-                originalTable, fields[1], fields[5])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?)",
+                originalTable, fields[1], fields[2], fields[3], fields[4], fields[5], fields[6])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -46,7 +46,7 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     }
     defer stmt.Close()
 
-    res, err := stmt.Exec(originalTZ, -1)
+    res, err := stmt.Exec(originalTZ, "", -1, "", -1, "")
     if err != nil {
         return -1, err
     }
@@ -187,7 +187,7 @@ func UpdateReplica (replicaTZ, originalTZ string) error {
 func needOriginalID (originalTZ string) (id int64, err error) {
     origial, err := getOriginalByName(originalTZ)
     if err != nil {
-        // Could not get ID for specified origial TZ.
+        // Could not get ID for specified original timezone.
         // Attempt to add it and get ID of new entry.
         id, err = AddOriginal (originalTZ)
         if err != nil {
