@@ -4,10 +4,10 @@ import (
     "fmt"
 )
 
-// AddFullOriginal adds data to an existing entry in table of origial TZs.
+// UpdateOriginal updates data of an existing entry in original timezones table.
 // This function is mainly used during initial setup, after having parsed
 // and processed the respective timezone file.
-func AddFullOriginal (origTZ *Original) error {
+func UpdateOriginal (origTZ *Original) error {
     if !dbOpen {
         return noDB
     }
@@ -134,27 +134,6 @@ func AddZones (timezone string, zones []Zone) error {
     }
 
     return nil
-}
-
-// UpdateOriginal updates default zone and offset of an origial timezone.
-func UpdateOriginal (origTZ *Original) error {
-    if !dbOpen {
-        return noDB
-    }
-
-    fields := getOriginalCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%q",
-                originalTable, fields[2], fields[3], fields[1], origTZ.Name)
-
-    stmt, err := db.Prepare(query)
-    if err != nil {
-        return err
-    }
-    defer stmt.Close()
-
-    _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset)
-
-    return err
 }
 
 // UpdateReplica updates the origial timezone linked to the specified replica.
