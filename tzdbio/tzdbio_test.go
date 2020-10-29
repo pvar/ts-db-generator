@@ -5,13 +5,29 @@ import (
         "testing"
 )
 
+func init() {
+        fmt.Printf("\nStarting tests...\n")
+        Open ("./testdb.sqlite")
+        query := fmt.Sprintf("DELETE FROM %s", originalTable)
+        stmt, _ := db.Prepare(query)
+        stmt.Exec()
+        stmt.Close()
+        query = fmt.Sprintf("DELETE FROM %s", replicaTable)
+        stmt, _ = db.Prepare(query)
+        stmt.Exec()
+        stmt.Close()
+        query = fmt.Sprintf("UPDATE sqlite_sequence SET seq=0 WHERE name=%q", originalTable)
+        stmt, _ = db.Prepare(query)
+        stmt.Exec()
+        stmt.Close()
+}
+
 func TestAddOriginal(t *testing.T) {
     originals := []string{
                 "Lamia",
                 "Patra",
                 "Irakleio"}
 
-        Open ("./testdb.sqlite")
         for _, original := range originals {
                 id, err := AddOriginal (original)
                 if err != nil {
@@ -29,7 +45,6 @@ func TestUpdateOriginal(t *testing.T) {
                 {ID: 0, Name: "Patra", DZone: "kalokairi", DOffset: 123, TabName: "patra_test", TabVer: 0, TZDVer: "2020a"},
                 {ID: 0, Name: "Irakleio", DZone: "kalokairi", DOffset: 312, TabName: "irkleio_test", TabVer: 0, TZDVer: "2020a"}}
 
-        Open ("./testdb.sqlite")
         for _, original := range originals {
                 err := UpdateOriginal (&original)
                 if err != nil {
@@ -77,12 +92,11 @@ func TestAddReplica(t *testing.T) {
                 {"Lianokladi", "Lamia"},
                 {"Patra", "Patra"},
                 {"Leontio", "Patra"},
-                {"Antririo", "Patra"},
+                {"Antirio", "Patra"},
                 {"Iraklio", "Irakleio"},
                 {"Knosos", "Irakleio"},
                 {"Finikia", "Irakleio"}}
 
-        Open ("./testdb.sqlite")
         for _, replica := range replicas {
                 err := AddReplicas([]string{replica.replica}, replica.original)
                 if err != nil {
@@ -95,8 +109,9 @@ func TestAddReplica(t *testing.T) {
 }
 
 func BenchmarkGetOriginalByID(b *testing.B) {
+        var testID = 3
         for i := 0; i < b.N; i++ {
-                _, err := getOriginalByID (2)
+                _, err := getOriginalByID (testID)
                 if err != nil {
                         b.Errorf("%s", err)
                 }
@@ -123,7 +138,6 @@ func BenchmarkGetReplicaOriginal(b *testing.B) {
 
 func BenchmarkGetZones(b *testing.B) {
         var original = "Lamia"
-
         for i := 0; i < b.N; i++ {
                 _, err := GetZones (original)
                 if err != nil {
