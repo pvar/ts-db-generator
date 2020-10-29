@@ -48,7 +48,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
         return nil, fmt.Errorf("tzdbio: cannot find reliable table with zones")
     }
 
-    return
+    return zones, nil
 }
 
 // getReplicaPrototype retrieves the prototype-ID for specified replica.
@@ -61,23 +61,22 @@ func getReplicaPrototype (replica string) (prototypeID int, err error) {
         return 0, err
     }
 
-    return
+    return prototypeID, nil
 }
 
 // getPrototypeByID retrieves data for a prototype with specified ID.
-func getPrototypeByID (prototypeID int) (prototype *Prototype, err error) {
+func getPrototypeByID (prototypeID int) (*Prototype, error) {
     var name, zone, ztname, tzdver string
     var id, ztver, offset int64
 
     columns := getPrototypeCols();
     query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[0], prototypeID)
-    err = db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver, &tzdver)
+    err := db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver, &tzdver)
     if err != nil {
         return nil, err
     }
 
-    prototype = &Prototype{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}
-    return
+    return &Prototype{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
 }
 
 // getPrototypeByName retrieves ID for a named prototype.
@@ -118,5 +117,5 @@ func getZones (zoneTable string) (zones []Zone, err error) {
         zones = append(zones, newZone)
     }
 
-    return
+    return zones, nil
 }

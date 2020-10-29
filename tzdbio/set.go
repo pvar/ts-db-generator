@@ -2,7 +2,6 @@ package tzdbio
 
 import (
     "fmt"
-//    "errors"
 )
 
 // AddFullPrototype adds data to an existing prototype in relevant table.
@@ -14,7 +13,7 @@ func AddFullPrototype (prototype *Prototype) error {
     }
 
     fields := getPrototypeCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? %s=? %s=? %s=? WHERE %s=%s",
+    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? %s=? %s=? %s=? WHERE %s=%d",
                 prototypeTable, fields[2], fields[3], fields[4], fields[5],
                 fields[6], fields[0], prototype.ID)
 
@@ -60,7 +59,7 @@ func AddPrototype (prototypeName string) (id int64, err error) {
         return -1, err
     }
 
-    return
+    return id, nil
 }
 
 // AddReplicas adds a new list of entries in the preplicas' table.
