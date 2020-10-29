@@ -2,7 +2,6 @@ package tzdbio
 
 import (
     "fmt"
-    "errors"
     "strings"
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
@@ -10,24 +9,23 @@ import (
 
 var (
     db *sql.DB
-    open bool
-    noConn  = errors.New("tzdbio: no connection to db")
-    noValid = errors.New("tzdbio: database seems empty")
+    dbOpen bool
+    noDB = fmt.Errorf("tzdbio: no connection to db")
 )
 
 func init () {
-    open = false
+    dbOpen = false
 }
 
 func Open (filename string) error {
     dbObj, err := sql.Open("sqlite3", filename)
 
     if err != nil {
-        open = false
+        dbOpen = false
         return err
     }
 
-    open = true
+    dbOpen = true
     db = dbObj
 
     err = checkTable(originalTable)
@@ -44,8 +42,8 @@ func Open (filename string) error {
 }
 
 func Close () error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     db.Close()

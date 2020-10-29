@@ -8,8 +8,8 @@ import (
 // This function is mainly used during initial setup, after having parsed
 // and processed the respective timezone file.
 func AddFullOriginal (origTZ *Original) error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     fields := getOriginalCols()
@@ -32,8 +32,8 @@ func AddFullOriginal (origTZ *Original) error {
 // The rest of the data remain uninitialized. This function is used
 // during initial setup, to populate table with available origials.
 func AddOriginal (originalTZ string) (id int64, err error) {
-    if !open {
-        return -1, noConn
+    if !dbOpen {
+        return -1, noDB
     }
 
     fields := getOriginalCols()
@@ -67,8 +67,8 @@ func AddOriginal (originalTZ string) (id int64, err error) {
 // extra entry. This function is mainly used during initial setup,
 // to populate table with replicas.
 func AddReplicas (replicaTZs []string, originalTZ string) error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     id, err := needOriginalID(originalTZ)
@@ -99,8 +99,8 @@ func AddReplicas (replicaTZs []string, originalTZ string) error {
 
 // AddZones adds a new sub-table of zones, to the specified origial timezone.
 func AddZones (originalTZ string, zones []Zone) error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     origial, err := getOriginalByName(originalTZ)
@@ -139,8 +139,8 @@ func AddZones (originalTZ string, zones []Zone) error {
 
 // UpdateOriginal updates default zone and offset of an origial timezone.
 func UpdateOriginal (origTZ *Original) error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     fields := getOriginalCols()
@@ -160,8 +160,8 @@ func UpdateOriginal (origTZ *Original) error {
 
 // UpdateReplica updates the origial timezone linked to the specified replica.
 func UpdateReplica (replicaTZ, originalTZ string) error {
-    if !open {
-        return noConn
+    if !dbOpen {
+        return noDB
     }
 
     id, err := needOriginalID(originalTZ)

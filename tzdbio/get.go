@@ -11,8 +11,8 @@ import (
 // The table of original timezones contains the name of the
 // table with the corresponding zones.
 func GetZones (timezone string) (zones []Zone, err error) {
-    if !open {
-        return nil, noConn
+    if !dbOpen {
+        return nil, noDB
     }
 
     // get id of original timezone from replicas' table
