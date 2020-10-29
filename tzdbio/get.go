@@ -81,17 +81,17 @@ func getOriginalByID (originalID int) (*Original, error) {
 
 // getOriginalByName retrieves ID for a named origial TZ.
 func getOriginalByName(originalTZ string) (*Original, error) {
-    var name, dzone, ztname, tzdver string
-    var id, ztver, doffset int64
+    var name, dzone, ztname, tzdatver string
+    var id, tzver, doffset int64
 
     columns := getOriginalCols();
-    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", originalTable, columns[1], originalTZ)
-    err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver, &tzdver)
+    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%q", originalTable, columns[1], originalTZ)
+    err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &tzver, &tzdatver)
     if err != nil {
         return nil, err
     }
 
-    return &Original{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
+    return &Original{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: tzver, TZDVer: tzdatver}, nil
 }
 
 // getZones retrieves all zones from specified table.
