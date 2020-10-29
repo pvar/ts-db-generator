@@ -23,7 +23,7 @@ func TestAddOriginal(t *testing.T) {
         }
 }
 
-func TestAddFullOriginal(t *testing.T) {
+func TestUpdateOriginal(t *testing.T) {
     originals := []Original{
                 {ID: 0, Name: "Lamia", DZone: "kalokairi", DOffset: 213, TabName: "lamia_test", TabVer: 0, TZDVer: "2020a"},
                 {ID: 0, Name: "Patra", DZone: "kalokairi", DOffset: 123, TabName: "patra_test", TabVer: 0, TZDVer: "2020a"},
@@ -31,7 +31,7 @@ func TestAddFullOriginal(t *testing.T) {
 
         Open ("./testdb.sqlite")
         for _, original := range originals {
-                err := AddFullOriginal (&original)
+                err := UpdateOriginal (&original)
                 if err != nil {
                         fmt.Printf("Failed to add full data for original %q\n", original)
                         t.Errorf("%s", err)
@@ -90,6 +90,44 @@ func TestAddReplica(t *testing.T) {
                         t.Errorf("%s", err)
                 } else {
                         fmt.Printf("Added replica %q with original %q\n", replica.replica, replica.original)
+                }
+        }
+}
+
+func BenchmarkGetOriginalByID(b *testing.B) {
+        for i := 0; i < b.N; i++ {
+                _, err := getOriginalByID (2)
+                if err != nil {
+                        b.Errorf("%s", err)
+                }
+        }
+}
+
+func BenchmarkGetOriginalByNane(b *testing.B) {
+        for i := 0; i < b.N; i++ {
+                _, err := getOriginalByName ("Lamia")
+                if err != nil {
+                        b.Errorf("%s", err)
+                }
+        }
+}
+
+func BenchmarkGetReplicaOriginal(b *testing.B) {
+        for i := 0; i < b.N; i++ {
+                _, err := getReplicaOriginal ("Orxomenos")
+                if err != nil {
+                        b.Errorf("%s", err)
+                }
+        }
+}
+
+func BenchmarkGetZones(b *testing.B) {
+        var original = "Lamia"
+
+        for i := 0; i < b.N; i++ {
+                _, err := GetZones (original)
+                if err != nil {
+                        b.Errorf("%s", err)
                 }
         }
 }
