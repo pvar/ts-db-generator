@@ -3,6 +3,7 @@ package tzdbio
 import (
     "fmt"
     "errors"
+    "strings"
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
 )
@@ -70,4 +71,19 @@ func createTable(query string) error {
     }
 
     return nil
+}
+
+func makeTabName (prototype string, version int) (tableName string, err error) {
+    if len(prototype) == 0 {
+        return "", fmt.Errorf("Prototype name is empty!")
+    }
+
+    if version < 0 {
+        return "", fmt.Errorf("Invalid version number!")
+    }
+
+    r := strings.NewReplacer("/", "_", "\\", "_", "+", "_P_", "-", "_M_")
+    base := r.Replace(prototype)
+    base = strings.ToLower(base)
+    return fmt.Sprintf("%s%d", base, version), nil
 }
