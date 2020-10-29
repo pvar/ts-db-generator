@@ -8,9 +8,9 @@ import (
 func TestAddOriginal(t *testing.T) {
 
     originals := []string{
-                "Shanghai",
-                "Europe/Athens",
-                "Europe/Berlin"}
+                "Lamia",
+                "Patra",
+                "Irakleio"}
 
         Open ("./testdb.sqlite")
         for _, original := range originals {
@@ -26,15 +26,16 @@ func TestAddOriginal(t *testing.T) {
 
 func TestAddReplica(t *testing.T) {
         replicas := []struct{replica, original string} {
-                {"Beijing", "Shanghai"},
-                {"Shenzhen", "Shanghai"},
-                {"Tianjin", "Shanghai"},
-                {"Larisa", "Europe/Athens"},
-                {"Farsala", "Europe/Athens"},
-                {"Xalkida", "Europe/Athens"},
-                {"Frankfurt", "Europe/Berlin"},
-                {"Nurnberg", "Europe/Berlin"},
-                {"Hanover", "Europe/Berlin"}}
+                {"Lamia", "Lamia"},
+                {"Orxomenos", "Lamia"},
+                {"Lianokladi", "Lamia"},
+                {"Patra", "Patra"},
+                {"Leontio", "Patra"},
+                {"Antririo", "Patra"},
+                {"Iraklio", "Irakleio"},
+                {"Knosos", "Irakleio"},
+                {"Finikia", "Irakleio"},
+                {"Lamia", "Irakleio"}}
 
         Open ("./testdb.sqlite")
         for _, replica := range replicas {
