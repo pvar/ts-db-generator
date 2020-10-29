@@ -107,12 +107,12 @@ func AddZones (originalTZ string, zones []Zone) error {
         return err
     }
 
-    newZonesTable := fmt.Sprintf("%s%v", origial.TabName, origial.TabVer + 1)
-    createTable (newZonesTable)
+    newTableName := fmt.Sprintf("%s%v", origial.TabName, origial.TabVer + 1)
+    createZoneTable (newTableName)
 
     fields := getZoneCols()
     query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)",
-                newZonesTable, fields[1], fields[2], fields[3], fields[4], fields[5])
+                newTableName, fields[1], fields[2], fields[3], fields[4], fields[5])
 
     stmt, err := db.Prepare(query)
     if err != nil {

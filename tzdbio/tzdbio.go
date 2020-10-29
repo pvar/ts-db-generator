@@ -71,6 +71,21 @@ func createTable(query string) error {
     return nil
 }
 
+func createZoneTable(tableName string) error {
+    query := getZoneSchema(tableName)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    _, err = stmt.Exec()
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 func makeTabName (prototype string, version int) (tableName string, err error) {
     if len(prototype) == 0 {
         return "", fmt.Errorf("Original TZ name is empty!")
