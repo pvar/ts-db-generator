@@ -28,13 +28,11 @@ func Open (filename string) error {
     dbOpen = true
     db = dbObj
 
-    err = checkTable(originalTable)
-    if err != nil {
+    if !tableExists(originalTable) {
         createTable(getOriginalSchema())
     }
 
-    err = checkTable(replicaTable)
-    if err != nil {
+    if !tableExists(replicaTable) {
         createTable(getReplicaSchema())
     }
 
@@ -50,12 +48,16 @@ func Close () error {
     return nil
 }
 
-func checkTable(tableName string) error {
+func tableExists(tableName string) bool {
     var tempname string
     query := fmt.Sprintf("SELECT name FROM sqlite_master WHERE type='table' AND name='{%s}';", tableName)
     row := db.QueryRow(query)
     err := row.Scan(&tempname)
-    return err
+    if err != nil {
+        return false
+    }
+
+    return true
 }
 
 func createTable(query string) error {
