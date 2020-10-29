@@ -73,7 +73,7 @@ func getZoneCols() []string {
 func getOriginalSchema() string {
     fields := getOriginalCols()
 
-    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT NOT NULL, PRIMARY KEY(%q AUTOINCREMENT));",
+    schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL UNIQUE, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT, PRIMARY KEY(%q AUTOINCREMENT));",
                         originalTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[0])
 
     return schema
