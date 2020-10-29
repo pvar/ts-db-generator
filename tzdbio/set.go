@@ -5,8 +5,32 @@ import (
 //    "errors"
 )
 
+// AddFullPrototype adds data to an existing prototype in relevant table.
+// This function is mainly used during initial setup, after having parsed
+// and processed the respective timezone file.
+func AddFullPrototype (prototype *Prototype) error {
+    if !open {
+        return noConn
+    }
+
+    fields := getPrototypeCols()
+    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? %s=? %s=? %s=? WHERE %s=%s",
+                prototypeTable, fields[2], fields[3], fields[4], fields[5],
+                fields[6], fields[0], prototype.ID)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(prototype.DZone, prototype.DOffset, prototype.TabName, prototype.TabVer, prototype.TZDVer)
+
+    return err
+}
+
 // AddPrototype adds *only* the name of a new entry in prototypes' table.
-// The rest of the data remain uninitialized. This function is mainly used
+// The rest of the data remain uninitialized. This function is used
 // during initial setup, to populate table with available prototypes.
 func AddPrototype (prototypeName string) (id int64, err error) {
     if !open {
@@ -14,7 +38,8 @@ func AddPrototype (prototypeName string) (id int64, err error) {
     }
 
     fields := getPrototypeCols()
-    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)", prototypeTable, fields[1], fields[5])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)",
+                prototypeTable, fields[1], fields[5])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -53,7 +78,8 @@ func AddReplicas (replicas []string, prototypeName string) error {
     }
 
     fields := getReplicaCols()
-    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)", replicaTable, fields[1], fields[2])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)",
+                replicaTable, fields[1], fields[2])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -87,7 +113,8 @@ func AddZones (prototypeName string, zones []Zone) error {
     createTable (newZonesTable)
 
     fields := getZoneCols()
-    query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)", newZonesTable, fields[1], fields[2], fields[3], fields[4], fields[5])
+    query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)",
+                newZonesTable, fields[1], fields[2], fields[3], fields[4], fields[5])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -119,7 +146,7 @@ func UpdatePrototype (prototype Prototype) error {
 
     fields := getPrototypeCols()
     query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
-            prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
+                prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -144,7 +171,8 @@ func UpdateReplica (replicaName, prototypeName string) error {
     }
 
     fields := getReplicaCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s", replicaTable, fields[2], fields[1], replicaName)
+    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s",
+                replicaTable, fields[2], fields[1], replicaName)
 
     stmt, err := db.Prepare(query)
     if err != nil {
