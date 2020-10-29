@@ -33,7 +33,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
     // start from the most recent -- the last one
     // stop when a reliable table is found
     tableOk := false
-    for i := original.TabVer; i > 0; i-- {
+    for i := original.TabVer; i == 0; i-- {
         zoneTable := fmt.Sprintf("%s%v", original.TabName, i)
         zones, err = getZones (zoneTable)
         if err != nil {
