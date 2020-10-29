@@ -96,18 +96,18 @@ func AddReplicas (replicaTZs []string, originalTZ string) error {
     return nil
 }
 
-// AddZones adds a new sub-table of zones, to the specified origial timezone.
-func AddZones (originalTZ string, zones []Zone) error {
+// AddZones creates a new table and adds a list of zones.
+func AddZones (timezone string, zones []Zone) error {
     if !dbOpen {
         return noDB
     }
 
-    origial, err := getOriginalByName(originalTZ)
+    original, err := getOriginalByName(timezone)
     if err != nil {
         return err
     }
 
-    newTableName := fmt.Sprintf("%s%v", origial.TabName, origial.TabVer + 1)
+    newTableName := fmt.Sprintf("%s%v", original.TabName, original.TabVer)
     createZoneTable (newTableName)
 
     fields := getZoneCols()
