@@ -38,27 +38,6 @@ func AddPrototype (prototypeName string) (id int64, err error) {
     return
 }
 
-// UpdatePrototype updates default zone and offset of a prototype timezone.
-func UpdatePrototype (prototype Prototype) error {
-    if !open {
-        return noConn
-    }
-
-    fields := getPrototypeCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
-            prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
-
-    stmt, err := db.Prepare(query)
-    if err != nil {
-        return err
-    }
-    defer stmt.Close()
-
-    _, err = stmt.Exec(prototype.DZone, prototype.DOffset)
-
-    return err
-}
-
 // AddReplicas adds a new list of entries in the preplicas' table.
 // Each group of replicas contains the name of the original as an
 // extra entry. This function is mainly used during initial setup,
@@ -91,30 +70,6 @@ func AddReplicas (replicas []string, prototypeName string) error {
     }
 
     return nil
-}
-
-// UpdateReplica updates the prototype timezone linked to the specified replica.
-func UpdateReplica (replicaName, prototypeName string) error {
-    if !open {
-        return noConn
-    }
-
-    id, err := needPrototypeID(prototypeName)
-    if err != nil {
-        return err
-    }
-
-    fields := getReplicaCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s", replicaTable, fields[2], fields[1], replicaName)
-
-    stmt, err := db.Prepare(query)
-    if err != nil {
-        return err
-    }
-    defer stmt.Close()
-
-    _, err = stmt.Exec(id)
-    return err
 }
 
 // AddZones adds a new sub-table of zones, to the specified prototype timezone.
@@ -154,6 +109,51 @@ func AddZones (prototypeName string, zones []Zone) error {
     }
 
     return nil
+}
+
+// UpdatePrototype updates default zone and offset of a prototype timezone.
+func UpdatePrototype (prototype Prototype) error {
+    if !open {
+        return noConn
+    }
+
+    fields := getPrototypeCols()
+    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
+            prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(prototype.DZone, prototype.DOffset)
+
+    return err
+}
+
+// UpdateReplica updates the prototype timezone linked to the specified replica.
+func UpdateReplica (replicaName, prototypeName string) error {
+    if !open {
+        return noConn
+    }
+
+    id, err := needPrototypeID(prototypeName)
+    if err != nil {
+        return err
+    }
+
+    fields := getReplicaCols()
+    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s", replicaTable, fields[2], fields[1], replicaName)
+
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(id)
+    return err
 }
 
 // needPrototypeID retrieves ID for named prototype or creates it.
