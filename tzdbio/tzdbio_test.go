@@ -33,10 +33,10 @@ func TestUpdateOriginal(t *testing.T) {
         for _, original := range originals {
                 err := UpdateOriginal (&original)
                 if err != nil {
-                        fmt.Printf("Failed to add full data for original %q\n", original)
+                        fmt.Printf("Failed to update data for original %q\n", original)
                         t.Errorf("%s", err)
                 } else {
-                        fmt.Printf("Added full data for original %q\n", original.Name)
+                        fmt.Printf("Updated data for original %q\n", original.Name)
                 }
         }
 }

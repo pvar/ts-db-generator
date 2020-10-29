@@ -36,8 +36,8 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     }
 
     fields := getOriginalCols()
-    query := fmt.Sprintf("INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?)",
-                originalTable, fields[1], fields[2], fields[3], fields[4], fields[5], fields[6])
+    query := fmt.Sprintf("INSERT INTO %s (%s) VALUES(?)",
+                originalTable, fields[1])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -45,7 +45,7 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     }
     defer stmt.Close()
 
-    res, err := stmt.Exec(originalTZ, "", -1, "", -1, "")
+    res, err := stmt.Exec(originalTZ)
     if err != nil {
         return -1, err
     }
