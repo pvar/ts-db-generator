@@ -13,9 +13,9 @@ func AddFullOriginal (origTZ *Original) error {
     }
 
     fields := getOriginalCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? %s=? %s=? %s=? WHERE %s=%d",
+    query := fmt.Sprintf("UPDATE %q SET %q=?, %q=?, %q=?, %q=?, %q=? WHERE %q=%q",
                 originalTable, fields[2], fields[3], fields[4], fields[5],
-                fields[6], fields[0], origTZ.ID)
+                fields[6], fields[1], origTZ.Name)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -24,7 +24,6 @@ func AddFullOriginal (origTZ *Original) error {
     defer stmt.Close()
 
     _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset, origTZ.TabName, origTZ.TabVer, origTZ.TZDVer)
-
     return err
 }
 
