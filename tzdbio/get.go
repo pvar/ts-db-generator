@@ -54,7 +54,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
 // getReplicaOriginal retrieves the original-ID for specified replica.
 func getReplicaOriginal (replicaTZ string) (originalID int, err error) {
     columns := getReplicaCols();
-    query := fmt.Sprintf("SELECT %s FROM %s WHERE %s=%s", columns[2], replicaTable, columns[1], replicaTZ)
+    query := fmt.Sprintf("SELECT %s FROM %s WHERE %s=%q", columns[2], replicaTable, columns[1], replicaTZ)
     err = db.QueryRow(query).Scan(&originalID)
 
     if err != nil {

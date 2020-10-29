@@ -144,7 +144,7 @@ func UpdateOriginal (origTZ *Original) error {
     }
 
     fields := getOriginalCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
+    query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%q",
                 originalTable, fields[2], fields[3], fields[1], origTZ.Name)
 
     stmt, err := db.Prepare(query)
@@ -170,7 +170,7 @@ func UpdateReplica (replicaTZ, originalTZ string) error {
     }
 
     fields := getReplicaCols()
-    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s",
+    query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%q",
                 replicaTable, fields[2], fields[1], replicaTZ)
 
     stmt, err := db.Prepare(query)
