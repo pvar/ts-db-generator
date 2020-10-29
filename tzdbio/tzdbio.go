@@ -30,9 +30,9 @@ func Open (filename string) error {
     open = true
     db = dbObj
 
-    err = checkTable(prototypeTable)
+    err = checkTable(originalTable)
     if err != nil {
-        createTable(getPrototypeSchema())
+        createTable(getOriginalSchema())
     }
 
     err = checkTable(replicaTable)
@@ -75,7 +75,7 @@ func createTable(query string) error {
 
 func makeTabName (prototype string, version int) (tableName string, err error) {
     if len(prototype) == 0 {
-        return "", fmt.Errorf("Prototype name is empty!")
+        return "", fmt.Errorf("Original TZ name is empty!")
     }
 
     if version < 0 {

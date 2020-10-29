@@ -2,12 +2,11 @@ package tzdbio
 
 import "fmt"
 
-// Prototype defines a unique timezone
-// By unique, we mean that said timezone is not a link to
-// another one. It's kind of a prototype. All the zones
-// withing a specific timezone are defined in a separate
-// table.
-type Prototype struct {
+// Original defines a unique timezone.
+// One that is not a link to another one.
+// All zones withing a specific timezone
+// are defined in separate tables.
+type Original struct {
     ID      int64
     Name    string
     DZone   string      // Default Zone (when no zones are defined)
@@ -35,12 +34,12 @@ type Zone struct {
 }
 
 const (
-    prototypeTable string = "prototype"
+    originalTable string = "prototype"
     replicaTable string = "replica"
 )
 
 // column names for table of prototypes
-func getPrototypeCols() []string {
+func getOriginalCols() []string {
     return []string{
         "id",
         "prototype_name",
@@ -71,11 +70,11 @@ func getZoneCols() []string {
 }
 
 // column names for table of prototypes
-func getPrototypeSchema() string {
-    fields := getPrototypeCols()
+func getOriginalSchema() string {
+    fields := getOriginalCols()
 
     schema := fmt.Sprintf("CREATE TABLE %q (%q INTEGER UNIQUE, %q TEXT NOT NULL, %q TEXT, %q INTEGER, %q TEXT, %q INTEGER DEFAULT 0, %q TEXT NOT NULL, PRIMARY KEY(%q AUTOINCREMENT));",
-                        prototypeTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[0])
+                        originalTable, fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[0])
 
     return schema
 }

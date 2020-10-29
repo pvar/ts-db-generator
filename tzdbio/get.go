@@ -7,25 +7,25 @@ import (
 
 // GetZones retrieves available zones for specified timezone.
 // The specified timezone is treated as a replica (link)
-// which is first translated to the corresponding prototype timezone.
-// The table of prototype timezones contains the name of the
+// which is first translated to the corresponding original TZ.
+// The table of original timezones contains the name of the
 // table with the corresponding zones.
 func GetZones (timezone string) (zones []Zone, err error) {
     if !open {
         return nil, noConn
     }
 
-    // get id of prototype timezone from replicas' table
-    protoID, err := getReplicaPrototype (timezone)
+    // get id of original timezone from replicas' table
+    protoID, err := getReplicaOriginal (timezone)
     if err != nil {
-        // cannot find prototype-id for specified replica
+        // cannot find original TZ for specified replica
         return nil, err
     }
 
-    // get all data for prototype timezone
-    prototype, err := getPrototypeByID (protoID)
+    // get all data for original timezone
+    original, err := getOriginalByID (protoID)
     if err != nil {
-        // cannot find data for prototype with specified ID
+        // cannot find data for original TZ
         return nil, err
     }
 
@@ -33,8 +33,8 @@ func GetZones (timezone string) (zones []Zone, err error) {
     // start from the most recent -- the last one
     // stop when a reliable table is found
     tableOk := false
-    for i := prototype.TabVer; i >= 0; i-- {
-        zoneTable := fmt.Sprintf("%s%v", prototype.TabName, i)
+    for i := original.TabVer; i >= 0; i-- {
+        zoneTable := fmt.Sprintf("%s%v", original.TabName, i)
         zones, err = getZones (zoneTable)
         if err != nil {
             // zone table unreliable
@@ -51,47 +51,47 @@ func GetZones (timezone string) (zones []Zone, err error) {
     return zones, nil
 }
 
-// getReplicaPrototype retrieves the prototype-ID for specified replica.
-func getReplicaPrototype (replica string) (prototypeID int, err error) {
+// getReplicaOriginal retrieves the original-ID for specified replica.
+func getReplicaOriginal (replicaTZ string) (originalID int, err error) {
     columns := getReplicaCols();
-    query := fmt.Sprintf("SELECT %s FROM %s WHERE %s=%s", columns[2], replicaTable, columns[1], replica)
-    err = db.QueryRow(query).Scan(&prototypeID)
+    query := fmt.Sprintf("SELECT %s FROM %s WHERE %s=%s", columns[2], replicaTable, columns[1], replicaTZ)
+    err = db.QueryRow(query).Scan(&originalID)
 
     if err != nil {
         return 0, err
     }
 
-    return prototypeID, nil
+    return originalID, nil
 }
 
-// getPrototypeByID retrieves data for a prototype with specified ID.
-func getPrototypeByID (prototypeID int) (*Prototype, error) {
+// getOriginalByID retrieves data for an origial TZ with specified ID.
+func getOriginalByID (originalID int) (*Original, error) {
     var name, zone, ztname, tzdver string
     var id, ztver, offset int64
 
-    columns := getPrototypeCols();
-    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[0], prototypeID)
+    columns := getOriginalCols();
+    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", originalTable, columns[0], originalID)
     err := db.QueryRow(query).Scan(&id, &name, &zone, &offset, &ztname, &ztver, &tzdver)
     if err != nil {
         return nil, err
     }
 
-    return &Prototype{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
+    return &Original{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
 }
 
-// getPrototypeByName retrieves ID for a named prototype.
-func getPrototypeByName(prototypeName string) (*Prototype, error) {
+// getOriginalByName retrieves ID for a named origial TZ.
+func getOriginalByName(originalTZ string) (*Original, error) {
     var name, dzone, ztname, tzdver string
     var id, ztver, doffset int64
 
-    columns := getPrototypeCols();
-    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", prototypeTable, columns[1], prototypeName)
+    columns := getOriginalCols();
+    query := fmt.Sprintf("SELECT * FROM %s WHERE %s=%v", originalTable, columns[1], originalTZ)
     err := db.QueryRow(query).Scan(&id, &name, &dzone, &doffset, &ztname, &ztver, &tzdver)
     if err != nil {
         return nil, err
     }
 
-    return &Prototype{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
+    return &Original{ID: id, Name: name, DZone: dzone, DOffset: doffset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
 }
 
 // getZones retrieves all zones from specified table.

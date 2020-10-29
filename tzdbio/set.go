@@ -4,18 +4,18 @@ import (
     "fmt"
 )
 
-// AddFullPrototype adds data to an existing prototype in relevant table.
+// AddFullOriginal adds data to an existing entry in table of origial TZs.
 // This function is mainly used during initial setup, after having parsed
 // and processed the respective timezone file.
-func AddFullPrototype (prototype *Prototype) error {
+func AddFullOriginal (origTZ *Original) error {
     if !open {
         return noConn
     }
 
-    fields := getPrototypeCols()
+    fields := getOriginalCols()
     query := fmt.Sprintf("UPDATE %s SET %s=? %s=? %s=? %s=? %s=? WHERE %s=%d",
-                prototypeTable, fields[2], fields[3], fields[4], fields[5],
-                fields[6], fields[0], prototype.ID)
+                originalTable, fields[2], fields[3], fields[4], fields[5],
+                fields[6], fields[0], origTZ.ID)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -23,22 +23,22 @@ func AddFullPrototype (prototype *Prototype) error {
     }
     defer stmt.Close()
 
-    _, err = stmt.Exec(prototype.DZone, prototype.DOffset, prototype.TabName, prototype.TabVer, prototype.TZDVer)
+    _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset, origTZ.TabName, origTZ.TabVer, origTZ.TZDVer)
 
     return err
 }
 
-// AddPrototype adds *only* the name of a new entry in prototypes' table.
+// AddOriginal adds the name of a new entry in table of original TZs.
 // The rest of the data remain uninitialized. This function is used
-// during initial setup, to populate table with available prototypes.
-func AddPrototype (prototypeName string) (id int64, err error) {
+// during initial setup, to populate table with available origials.
+func AddOriginal (originalTZ string) (id int64, err error) {
     if !open {
         return -1, noConn
     }
 
-    fields := getPrototypeCols()
+    fields := getOriginalCols()
     query := fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES(?, ?)",
-                prototypeTable, fields[1], fields[5])
+                originalTable, fields[1], fields[5])
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -46,7 +46,7 @@ func AddPrototype (prototypeName string) (id int64, err error) {
     }
     defer stmt.Close()
 
-    res, err := stmt.Exec(prototypeName, -1)
+    res, err := stmt.Exec(originalTZ, -1)
     if err != nil {
         return -1, err
     }
@@ -66,12 +66,12 @@ func AddPrototype (prototypeName string) (id int64, err error) {
 // Each group of replicas contains the name of the original as an
 // extra entry. This function is mainly used during initial setup,
 // to populate table with replicas.
-func AddReplicas (replicas []string, prototypeName string) error {
+func AddReplicas (replicaTZs []string, originalTZ string) error {
     if !open {
         return noConn
     }
 
-    id, err := needPrototypeID(prototypeName)
+    id, err := needOriginalID(originalTZ)
     if err != nil {
         return err
     }
@@ -86,9 +86,9 @@ func AddReplicas (replicas []string, prototypeName string) error {
     }
     defer stmt.Close()
 
-    // add each replica with the ID of the specified prototype
-    for _, replica := range replicas {
-        _, err := stmt.Exec(replica, id)
+    // add each replica with the ID of the specified origial TZ
+    for _, replicaTZ := range replicaTZs {
+        _, err := stmt.Exec(replicaTZ, id)
         if err != nil {
             return err
         }
@@ -97,18 +97,18 @@ func AddReplicas (replicas []string, prototypeName string) error {
     return nil
 }
 
-// AddZones adds a new sub-table of zones, to the specified prototype timezone.
-func AddZones (prototypeName string, zones []Zone) error {
+// AddZones adds a new sub-table of zones, to the specified origial timezone.
+func AddZones (originalTZ string, zones []Zone) error {
     if !open {
         return noConn
     }
 
-    prototype, err := getPrototypeByName(prototypeName)
+    origial, err := getOriginalByName(originalTZ)
     if err != nil {
         return err
     }
 
-    newZonesTable := fmt.Sprintf("%s%v", prototype.TabName, prototype.TabVer + 1)
+    newZonesTable := fmt.Sprintf("%s%v", origial.TabName, origial.TabVer + 1)
     createTable (newZonesTable)
 
     fields := getZoneCols()
@@ -137,15 +137,15 @@ func AddZones (prototypeName string, zones []Zone) error {
     return nil
 }
 
-// UpdatePrototype updates default zone and offset of a prototype timezone.
-func UpdatePrototype (prototype Prototype) error {
+// UpdateOriginal updates default zone and offset of an origial timezone.
+func UpdateOriginal (origTZ *Original) error {
     if !open {
         return noConn
     }
 
-    fields := getPrototypeCols()
+    fields := getOriginalCols()
     query := fmt.Sprintf("UPDATE %s SET %s=? %s=? WHERE %s=%s",
-                prototypeTable, fields[2], fields[3], fields[1], prototype.Name)
+                originalTable, fields[2], fields[3], fields[1], origTZ.Name)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -153,25 +153,25 @@ func UpdatePrototype (prototype Prototype) error {
     }
     defer stmt.Close()
 
-    _, err = stmt.Exec(prototype.DZone, prototype.DOffset)
+    _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset)
 
     return err
 }
 
-// UpdateReplica updates the prototype timezone linked to the specified replica.
-func UpdateReplica (replicaName, prototypeName string) error {
+// UpdateReplica updates the origial timezone linked to the specified replica.
+func UpdateReplica (replicaTZ, originalTZ string) error {
     if !open {
         return noConn
     }
 
-    id, err := needPrototypeID(prototypeName)
+    id, err := needOriginalID(originalTZ)
     if err != nil {
         return err
     }
 
     fields := getReplicaCols()
     query := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=%s",
-                replicaTable, fields[2], fields[1], replicaName)
+                replicaTable, fields[2], fields[1], replicaTZ)
 
     stmt, err := db.Prepare(query)
     if err != nil {
@@ -183,18 +183,18 @@ func UpdateReplica (replicaName, prototypeName string) error {
     return err
 }
 
-// needPrototypeID retrieves ID for named prototype or creates it.
-func needPrototypeID (prototypeName string) (id int64, err error) {
-    prototype, err := getPrototypeByName(prototypeName)
+// needOriginalID retrieves ID for named origial TZ or creates it.
+func needOriginalID (originalTZ string) (id int64, err error) {
+    origial, err := getOriginalByName(originalTZ)
     if err != nil {
-        // Could not get ID for specified prototype.
+        // Could not get ID for specified origial TZ.
         // Attempt to add it and get ID of new entry.
-        id, err = AddPrototype (prototypeName)
+        id, err = AddOriginal (originalTZ)
         if err != nil {
             return -1, err
         }
         return id, nil
     }
 
-    return prototype.ID, nil
+    return origial.ID, nil
 }
