@@ -5,6 +5,26 @@ import (
         "testing"
 )
 
+func TestGetList(t *testing.T) {
+    version, list, err := GetList()
+
+    if err != nil {
+        t.Errorf("\nFailed: %s\n", err)
+    } else {
+        fmt.Printf("\n\tVersion: %q\n", version)
+        fmt.Printf("\tTimezones:\n")
+        for key, value := range list {
+            fmt.Printf("\t\t%q --> %q\n", key, value)
+        }
+    }
+}
+
+func BenchmarkGetList(b *testing.B) {
+        for i := 0; i < b.N; i++ {
+            GetList()
+        }
+}
+
 func TestBadLocations(t *testing.T) {
         badLocations := []string{
                 "Atlantis/nonexistent",
