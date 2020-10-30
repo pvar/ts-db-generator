@@ -9,8 +9,8 @@ import "fmt"
 type Original struct {
     ID      int64
     Name    string
-    DZone   string      // Default Zone (when no zones are defined)
-    DOffset int64       // Default Offset (when no zones are defined)
+    DZone   string      // Get this Zone when no zones are defined!
+    DOffset int64       // Get this Offset when no zones are defined!
     TabName string
     TabVer  int64
     TZDVer  string      // Version of TZ-data used to update sqlite database
