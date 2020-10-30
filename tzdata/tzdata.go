@@ -11,11 +11,6 @@
 
 package tzdata
 
-import (
-        "fmt"
-        "time"
-)
-
 const source_path string = "/usr/share/zoneinfo/"
 
 // TZdata collects time offsets and offset-transitions for a geographical area.

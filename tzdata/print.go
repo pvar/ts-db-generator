@@ -1,5 +1,10 @@
 package tzdata
 
+import (
+        "fmt"
+        "time"
+)
+
 func (tzd *TZdata) PrintRaw() {
         fmt.Printf("\nRaw data for %q.\n", tzd.Name)
 
