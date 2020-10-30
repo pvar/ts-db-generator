@@ -88,17 +88,13 @@ func createZoneTable(tableName string) error {
     return nil
 }
 
-func makeTabName (prototype string, version int) (tableName string, err error) {
+func makeTabName (prototype string) (tableName string, err error) {
     if len(prototype) == 0 {
         return "", fmt.Errorf("Original TZ name is empty!")
     }
 
-    if version < 0 {
-        return "", fmt.Errorf("Invalid version number!")
-    }
-
     r := strings.NewReplacer("/", "_", "\\", "_", "+", "_P_", "-", "_M_")
-    base := r.Replace(prototype)
-    base = strings.ToLower(base)
-    return fmt.Sprintf("%s%d", base, version), nil
+    name := r.Replace(prototype)
+    name = strings.ToLower(name)
+    return name, nil
 }

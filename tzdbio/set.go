@@ -23,7 +23,14 @@ func UpdateOriginal (origTZ *Original) error {
     }
     defer stmt.Close()
 
-    _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset, origTZ.TabName, origTZ.TabVer, origTZ.TZDVer)
+    tableName, err := makeTabName(origTZ.Name)
+    if err != nil {
+        // this only happens when timezone name is empty
+        // which means never!
+        return err
+    }
+
+    _, err = stmt.Exec(origTZ.DZone, origTZ.DOffset, tableName, origTZ.TabVer, origTZ.TZDVer)
     return err
 }
 
