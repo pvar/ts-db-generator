@@ -25,8 +25,7 @@ func UpdateOriginal (origTZ *Original) error {
 
     tableName, err := makeTabName(origTZ.Name)
     if err != nil {
-        // this only happens when timezone name is empty
-        // which means never!
+        // this only happens if origTZ.Name is empty...
         return err
     }
 

@@ -18,7 +18,9 @@ func init () {
 }
 
 func Open (filename string) error {
-    dbObj, err := sql.Open("sqlite3", filename)
+    dsi := fmt.Sprintf("file:%s?cache=shared&mode=rwc&_journal_mode=WAL", filename)
+
+    dbObj, err := sql.Open("sqlite3", dsi)
 
     if err != nil {
         dbOpen = false
