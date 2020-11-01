@@ -1,4 +1,4 @@
-package tzdbio
+package tzdb
 
 import (
     "fmt"
@@ -45,7 +45,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
     }
 
     if !tableOk {
-        return nil, fmt.Errorf("tzdbio: cannot find reliable table with zones")
+        return nil, fmt.Errorf("tzdb: cannot find reliable table with zones")
     }
 
     return zones, nil

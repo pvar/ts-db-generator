@@ -1,4 +1,4 @@
-package tzdbio
+package tzdb
 
 import (
     "fmt"
@@ -10,7 +10,7 @@ import (
 var (
     db *sql.DB
     dbOpen bool
-    noDB = fmt.Errorf("tzdbio: no connection to db")
+    noDB = fmt.Errorf("tzdb: no connection to db")
 )
 
 func init () {
@@ -18,9 +18,9 @@ func init () {
 }
 
 func Open (filename string) error {
-    dsi := fmt.Sprintf("file:%s?cache=shared&mode=rwc&_journal_mode=WAL", filename)
+    dsn := fmt.Sprintf("file:%s?cache=shared&mode=rwc&_journal_mode=WAL", filename)
 
-    dbObj, err := sql.Open("sqlite3", dsi)
+    dbObj, err := sql.Open("sqlite3", dsn)
 
     if err != nil {
         dbOpen = false

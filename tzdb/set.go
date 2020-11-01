@@ -1,4 +1,4 @@
-package tzdbio
+package tzdb
 
 import (
     "fmt"

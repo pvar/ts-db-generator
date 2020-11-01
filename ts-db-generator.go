@@ -5,7 +5,7 @@ import (
     "log"
     "time"
     "ts-db-generator/tzdata"
-    "ts-db-generator/tzdbio"
+    "ts-db-generator/tzdb"
 )
 
 const dbfile = "./tsdb.sqlite"
@@ -16,17 +16,17 @@ func main () {
         log.Fatalf("\nError loading timezone metadata (tzdata.zi): %s", err)
     }
 
-    originals := make(map[string]*tzdbio.Original)
+    originals := make(map[string]*tzdb.Original)
     replicas := make(map[string][]string)
     for replica, original := range timezones {
         if originals[original] == nil {
-            originals[original] = &tzdbio.Original{Name: original}
+            originals[original] = &tzdb.Original{Name: original}
         }
         replicas[original] = append(replicas[original], replica)
     }
 
-    tzdbio.Open(dbfile)
-    defer tzdbio.Close()
+    tzdb.Open(dbfile)
+    defer tzdb.Close()
 
     if err := storeOriginals(originals); err != nil {
         log.Fatalf("\nFailed while storing originals")
@@ -40,14 +40,14 @@ func main () {
         log.Fatalf("\nFailed while updating originals")
     }
 
-    fmt.Printf("\nAll done. Have a nice day :-)")
+    fmt.Printf("\nAll done. Have a nice day :)\n")
 }
 
 // storeOriginals add new entries in the table of original timezones
 // THe ID of each entry is saved in the struct representing each
 // timezone, since it will be needed later-on, while storing the
 // replicas (links to originals).
-func storeOriginals (originals map[string]*tzdbio.Original) error {
+func storeOriginals (originals map[string]*tzdb.Original) error {
     // save cursor position
     fmt.Print("\033[s")
 
@@ -58,7 +58,7 @@ func storeOriginals (originals map[string]*tzdbio.Original) error {
         fmt.Print("\033[u\033[K")
         fmt.Printf("Adding original timezone [%3d/%3d]", i, j)
 
-        id, err := tzdbio.AddOriginal (org)
+        id, err := tzdb.AddOriginal (org)
         if err != nil {
             log.Printf("\nattempt to add %q failed with: %s", org,  err)
             return err
@@ -83,7 +83,7 @@ func storeReplicas(replicas map[string][]string) error {
         fmt.Print("\033[u\033[K")
         fmt.Printf("Adding group of replicas [%3d/%3d]", i, j)
 
-        err := tzdbio.AddReplicas (rlist, org)
+        err := tzdb.AddReplicas (rlist, org)
         if err != nil {
             log.Printf("\nattempt to add %q failed with: %s", org,  err)
             return err
@@ -96,7 +96,7 @@ func storeReplicas(replicas map[string][]string) error {
 // updateOriginals stores all related to each original timezone.
 // That is, all the available zones, the default zone and offset
 // and the version of the tzdata set used.
-func updateOriginals (ver string, originals map[string]*tzdbio.Original) error {
+func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
     // save cursor position
     fmt.Print("\033[s")
 
@@ -126,9 +126,9 @@ func updateOriginals (ver string, originals map[string]*tzdbio.Original) error {
         // check if any zones are defined
         saveZones := false
         zoneCount := len(data.Trans)
-        zones := make([]tzdbio.Zone, zoneCount)
+        zones := make([]tzdb.Zone, zoneCount)
         if zoneCount != 0 {
-            zone := tzdbio.Zone{}
+            zone := tzdb.Zone{}
             for z := 0; z < zoneCount; z++ {
                 zone.Name = data.Eras[data.Trans[z].Index].Name
                 zone.Offset = int64(data.Eras[data.Trans[z].Index].Offset)
@@ -153,14 +153,14 @@ func updateOriginals (ver string, originals map[string]*tzdbio.Original) error {
         }
 
         // save current state of original
-        if err := tzdbio.UpdateOriginal(originals[org]); err != nil {
+        if err := tzdb.UpdateOriginal(originals[org]); err != nil {
             log.Printf("\nattempt to update original %q failed with: %s", org,  err)
             return err
         }
 
         // if have to, save table with zones
         if saveZones {
-            if err := tzdbio.AddZones (org, zones); err != nil {
+            if err := tzdb.AddZones (org, zones); err != nil {
                 log.Printf("\nattempt to add zones for original %q failed with: %s", org,  err)
                 return err
             }
