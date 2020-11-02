@@ -126,7 +126,7 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
         // check if any zones are defined
         saveZones := false
         zoneCount := len(data.Trans)
-        zones := make([]tzdb.Zone, zoneCount)
+        zones := make([]tzdb.Zone, 0, zoneCount)
         if zoneCount != 0 {
             zone := tzdb.Zone{}
             for z := 0; z < zoneCount; z++ {
@@ -141,6 +141,7 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
                 }
                 zones = append(zones, zone)
             }
+            saveZones = true
 
             // get current version of zones table
             //...
@@ -148,8 +149,6 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
             // update version of zones-table
             // name of zones-table will be auto-generated
             originals[org].TabVer += 1
-
-            saveZones = true
         }
 
         // save current state of original
