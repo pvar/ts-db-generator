@@ -1,8 +1,8 @@
 package tzdata
 
 import (
+        "fmt"
         "errors"
-        "runtime"
 )
 
 var badData = errors.New("tzdata: malformed timezone file")
@@ -218,6 +218,7 @@ func parseRawTZdata(name string, data []byte) (*TZdata, error) {
                 if uint32(int(n)) != n {
                         return nil, badData
                 }
+
                 eras[i].Offset = int(int32(n))
                 var b byte
                 if b, ok = zonedata.byte(); !ok {
@@ -228,14 +229,6 @@ func parseRawTZdata(name string, data []byte) (*TZdata, error) {
                         return nil, badData
                 }
                 eras[i].Name = byteString(abbrev[b:])
-                if runtime.GOOS == "aix" && len(name) > 8 && (name[:8] == "Etc/GMT+" || name[:8] == "Etc/GMT-") {
-                        // There is a bug with AIX 7.2 TL 0 with files in Etc,
-                        // GMT+1 will return GMT-1 instead of GMT+1 or -01.
-                        if name != "Etc/GMT+0" {
-                                // GMT+0 is OK
-                                eras[i].Name = name[4:]
-                        }
-                }
         }
 
         // Now the transition time info.
@@ -272,6 +265,10 @@ func parseRawTZdata(name string, data []byte) (*TZdata, error) {
                         tx[i].Isutc = (isutc[i] != 0)
                 }
         }
+
+        // check if last transition starts at 2147483647 (19 Jan 2038 -- end of 32bit timestamps)
+        // if yes, compute 32 more transitions decoding "extend" string
+        fmt.Printf("\nextend string: %q", extend)
 
         l := &TZdata{Eras: eras, Trans: tx, Name: name, Extend: extend}
 
