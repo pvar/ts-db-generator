@@ -5,6 +5,28 @@ import (
         "testing"
 )
 
+func TestGetData(t *testing.T) {
+    location := "America/Nuuk"
+
+    data, err := GetData(location)
+    if err != nil {
+        t.Errorf("Error getting data for %q: %s", location, err)
+    }
+
+    fmt.Printf("\nTimezone: %q", data.Name)
+
+    for i, era := range data.Eras {
+        fmt.Printf("\n\t[%3d] Era: %-5q, DST: %v, Offset: %d", i, era.Name, era.IsDST, era.Offset)
+    }
+    fmt.Printf("\n")
+
+    for i, trans := range data.Trans {
+        fmt.Printf("\n\t[%3d] Name: %-5q, Start: %d", i, data.Eras[trans.Index].Name, trans.When)
+    }
+    fmt.Printf("\n")
+
+}
+
 func TestGetList(t *testing.T) {
     version, list, err := GetList()
 
