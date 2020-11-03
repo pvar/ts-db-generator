@@ -54,7 +54,7 @@ func GetZones (timezone string) (zones []Zone, err error) {
 
 func GetOriginalCount () (count int, err error) {
     if !dbOpen {
-        return -1, noDB
+        return 0, noDB
     }
 
     columns := getOriginalCols();
@@ -63,25 +63,54 @@ func GetOriginalCount () (count int, err error) {
 
 func GetReplicaCount () (count int, err error) {
     if !dbOpen {
-        return -1, noDB
+        return 0, noDB
     }
 
     columns := getReplicaCols();
     return getCount(columns[1], replicaTable)
 }
 
+func GetZoneCount (table string) (count int, err error) {
+    if !dbOpen {
+        return 0, noDB
+    }
+
+    columns := getZoneCols();
+    return getCount(columns[2], table)
+}
+
+func GetZoneTableMeta (originalID int) (tableVer int, storedZones int, version string, err error) {
+    if !dbOpen {
+        return 0, 0, "", noDB
+    }
+
+    original, err := getOriginalByID(originalID)
+    if err != nil {
+        return 0, 0, "", err
+    }
+
+    zoneTable := fmt.Sprintf("%s%v", original.TabName, original.TabVer)
+    columns := getZoneCols()
+    storedZones, err = getCount(columns[0], zoneTable)
+    if err != nil {
+        return 0, 0, "", err
+    }
+
+    return int(original.TabVer), storedZones, original.TZDVer, nil
+}
+
 func getCount (column, table string) (count int, err error) {
     query := fmt.Sprintf("SELECT COUNT(%s) FROM %s", column, table)
     stmt, err := db.Prepare(query)
     if err != nil {
-        return -1, err
+        return 0, err
     }
     defer stmt.Close()
 
     var value string
     err = stmt.QueryRow().Scan(&value)
     if err != nil {
-        return -1, err
+        return 0, err
     }
 
     count, _ = strconv.Atoi(value)
