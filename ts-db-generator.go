@@ -51,6 +51,20 @@ func storeOriginals (originals map[string]*tzdb.Original) error {
     // save cursor position
     fmt.Print("\033[s")
 
+    storedCount, err := tzdb.GetOriginalCount()
+    if err != nil || storedCount == 0 {
+        // if no original timezones present,
+        // assign a value that will in effect
+        // disable the next check...
+        storedCount = 123456789
+    }
+
+    // check if ammount of new originals supersedes 5% of stored originals
+    if (float64(len(originals) - storedCount) / float64(storedCount)) > 0.05 {
+        log.Printf("\nUpdated set of originals contains too many new entries!")
+        return fmt.Errorf("")
+    }
+
     i, j := 0, len(originals)
     for org, _ := range originals {
         i++
@@ -75,6 +89,20 @@ func storeOriginals (originals map[string]*tzdb.Original) error {
 func storeReplicas(replicas map[string][]string) error {
     // save cursor position
     fmt.Print("\033[s")
+
+    storedCount, err := tzdb.GetReplicaCount()
+    if err != nil || storedCount == 0 {
+        // if no original timezones present,
+        // assign a value that will in effect
+        // disable the next check...
+        storedCount = 123456789
+    }
+
+    // check if ammount of new replicas supersedes 5% of stored replicas
+    if (float64(len(replicas) - storedCount) / float64(storedCount)) > 0.05 {
+        log.Printf("\nUpdated set of originals contains too many new entries!")
+        return fmt.Errorf("")
+    }
 
     i, j := 0, len(replicas)
     for org, rlist := range replicas {
