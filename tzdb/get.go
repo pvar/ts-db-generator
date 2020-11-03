@@ -2,6 +2,7 @@ package tzdb
 
 import (
     "fmt"
+    "strconv"
     _ "github.com/mattn/go-sqlite3"
 )
 
@@ -50,6 +51,43 @@ func GetZones (timezone string) (zones []Zone, err error) {
 
     return zones, nil
 }
+
+func GetOriginalCount () (count int, err error) {
+    if !dbOpen {
+        return -1, noDB
+    }
+
+    columns := getOriginalCols();
+    return getCount(columns[1], originalTable)
+}
+
+func GetReplicaCount () (count int, err error) {
+    if !dbOpen {
+        return -1, noDB
+    }
+
+    columns := getReplicaCols();
+    return getCount(columns[1], replicaTable)
+}
+
+func getCount (column, table string) (count int, err error) {
+    query := fmt.Sprintf("SELECT COUNT(%s) FROM %s", column, table)
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return -1, err
+    }
+    defer stmt.Close()
+
+    var value string
+    err = stmt.QueryRow().Scan(&value)
+    if err != nil {
+        return -1, err
+    }
+
+    count, _ = strconv.Atoi(value)
+    return count, err
+}
+
 
 // getReplicaOriginal retrieves the original-ID for specified replica.
 func getReplicaOriginal (replicaTZ string) (originalID int, err error) {

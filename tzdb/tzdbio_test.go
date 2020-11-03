@@ -145,3 +145,16 @@ func BenchmarkGetZones(b *testing.B) {
                 }
         }
 }
+
+func TestGetCounts(t *testing.T) {
+    originals, err := GetOriginalCount()
+    if err != nil {
+        t.Errorf("Failed to retrieve number of originals: %s", err)
+    }
+    replicas, err := GetReplicaCount()
+    if err != nil {
+        t.Errorf("Failed to retrieve number of replicas: %s", err)
+    }
+
+    fmt.Printf("\nOriginals: %-4d \tReplicas: %d\n", originals, replicas)
+}
