@@ -52,15 +52,21 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     defer stmt.Close()
 
     res, err := stmt.Exec(originalTZ)
+    // if query failed, assume that specified original
+    // was already present in the database. Attempt to
+    // retrieve data from stored instance...
     if err != nil {
-        return -1, err
+        original, err := getOriginalByName(originalTZ)
+        // if no such original can be found,
+        // something terrible is going on!
+        if err != nil {
+            return -1, err
+        }
+        return original.ID, nil
     }
 
     id, err = res.LastInsertId()
     if err != nil {
-        // this is highly impropable,
-        // since the DB statement was
-        // executed without any errors...
         return -1, err
     }
 
@@ -93,10 +99,8 @@ func AddReplicas (replicaTZs []string, originalTZ string) error {
 
     // add each replica with the ID of the specified origial TZ
     for _, replicaTZ := range replicaTZs {
-        _, err := stmt.Exec(replicaTZ, id)
-        if err != nil {
-            return err
-        }
+        stmt.Exec(replicaTZ, id)
+        // ignore errors at this point
     }
 
     return nil
