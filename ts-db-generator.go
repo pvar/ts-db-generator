@@ -1,6 +1,7 @@
 package main
 
 import (
+    "os"
     "fmt"
     "log"
     "time"
@@ -25,7 +26,14 @@ func main () {
         replicas[original] = append(replicas[original], replica)
     }
 
-    tzdb.Open(dbfile)
+    var filename string
+    if len(os.Args) > 1 {
+        filename = os.Args[1]
+    } else {
+        filename = dbfile
+    }
+
+    tzdb.Open(filename)
     defer tzdb.Close()
 
     if err := storeOriginals(originals); err != nil {
