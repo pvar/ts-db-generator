@@ -55,7 +55,7 @@ func storeOriginals (originals map[string]*tzdb.Original) error {
     if err != nil || storedCount == 0 {
         // if no original timezones present,
         // assign a value that will in effect
-        // disable the next check...
+        // disable the following check...
         storedCount = 123456789
     }
 
@@ -94,7 +94,7 @@ func storeReplicas(replicas map[string][]string) error {
     if err != nil || storedCount == 0 {
         // if no original timezones present,
         // assign a value that will in effect
-        // disable the next check...
+        // disable the following check...
         storedCount = 123456789
     }
 
@@ -130,6 +130,7 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
 
     nowTime := time.Now().Unix()
 
+    // loop through original timezones...
     i, j := 0, len(originals)
     for org, _ := range originals {
         i++
@@ -137,25 +138,60 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
         fmt.Print("\033[u\033[K")
         fmt.Printf("Adding full data of original timezone [%3d/%3d]", i, j)
 
-        originals[org].TZDVer = ver
-
         // get data related to selected timezone
         data, err := tzdata.GetData(org)
         if err != nil {
-            log.Printf("\nattempt to get data for original %q failed with: %s", org,  err)
+            log.Printf("\nfailed to get data for timezone %q: %s", org,  err)
             return err
         }
 
-        // these values will be ignored if there are any zones defined
+        originals[org].TZDVer = ver
+
+        // These are the defualt values for Zone name (abbreviation)
+        // and offset. They will be ignored if there are any zones
+        // defined...
         zoneName, offset, _, _ := data.Lookup(nowTime)
         originals[org].DZone = zoneName
         originals[org].DOffset = int64(offset)
 
-        // check if any zones are defined
+        // get metadata for already stored table of zones
+        curTableVer, storedZones, storedTZdataVer, err := tzdb.GetZoneTableMeta (int(originals[org].ID))
+        if err != nil {
+            // if no stored zones are present,
+            // assign a value that will in effect
+            // disable the following check...
+            storedZones = 123456789
+        }
+
         saveZones := false
         zoneCount := len(data.Trans)
+
+        // If frershly parsed data are of an older version than the stored data,
+        // abort the update proceedure immediately.
+        if (ver < storedTZdataVer) {
+            return fmt.Errorf("Parsed TZdata are of an older version!")
+        }
+
+        // If freshly parsed and stored data are of the same version
+        // AND the ammount of new zones equals the ammount stored ones,
+        // there is nothing new to add.
+        if (ver == storedTZdataVer) && (zoneCount == storedZones) {
+            // Nothing new to add!
+            // Proceed to next original timezone.
+            continue
+        }
+
+        // Check if ammount of new zones supersedes 5% of ammount of stored zones.
+        if ((float64(zoneCount - storedZones) / float64(storedZones)) > 0.05) {
+            // Updated set of zones contains too many new entries!
+            // Proceed to next original timezone.
+            continue
+        }
+
+        // if any zones are defined, populate slice of zones
         zones := make([]tzdb.Zone, 0, zoneCount)
         if zoneCount != 0 {
+            saveZones = true
             zone := tzdb.Zone{}
             for z := 0; z < zoneCount; z++ {
                 zone.Name = data.Eras[data.Trans[z].Index].Name
@@ -169,23 +205,18 @@ func updateOriginals (ver string, originals map[string]*tzdb.Original) error {
                 }
                 zones = append(zones, zone)
             }
-            saveZones = true
 
-            // get current version of zones table
-            //...
-
-            // update version of zones-table
+            originals[org].TabVer = int64(curTableVer + 1)
             // name of zones-table will be auto-generated
-            originals[org].TabVer += 1
         }
 
-        // save current state of original
+        // Save updated state of original timezone.
         if err := tzdb.UpdateOriginal(originals[org]); err != nil {
             log.Printf("\nattempt to update original %q failed with: %s", org,  err)
             return err
         }
 
-        // if have to, save table with zones
+        // If new zones are to be saved... do it!
         if saveZones {
             if err := tzdb.AddZones (org, zones); err != nil {
                 log.Printf("\nattempt to add zones for original %q failed with: %s", org,  err)
