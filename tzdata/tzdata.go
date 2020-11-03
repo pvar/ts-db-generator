@@ -38,9 +38,11 @@ type Era struct {
 
 // A zoneTrans represents a single time zone transition.
 type EraTrans struct {
-        When         int64 // transition time, in seconds since 1970 GMT
-        Index        uint8 // index of the zone that goes into effect at that time
-        Isstd, Isutc bool  // seems to be ignored
+        When         int64  // transition time, in seconds since 1970 GMT
+        Index        uint8  // index of the zone that goes into effect at that time
+        AltName      string // Zone name   -- used when Index == 255
+        AltOffset    int    // Zone offset -- used when Index == 255
+        Isstd, Isutc bool   // seems to be ignored
         // supposed to indicate whether transition time (When)
         // expressed in UTC or local
 }

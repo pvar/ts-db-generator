@@ -1,7 +1,7 @@
 package tzdata
 
 import (
-        "fmt"
+        "time"
         "errors"
 )
 
@@ -266,9 +266,61 @@ func parseRawTZdata(name string, data []byte) (*TZdata, error) {
                 }
         }
 
-        // check if last transition starts at 2147483647 (19 Jan 2038 -- end of 32bit timestamps)
-        // if yes, compute 32 more transitions decoding "extend" string
-        fmt.Printf("\nextend string: %q", extend)
+        // Check if TZ string has been defined
+        // If it has, use it to calculate some more
+        // transitions into the future.
+        var newTrans int = 0
+        if len(extend) > 0 {
+            var lastTrans int64
+            var prevS int64
+            var prevN string
+
+            if len(tx) > 0 {
+                lastTrans = tx[len(tx)-1].When
+                prevS = lastTrans
+                prevN = eras[tx[len(tx) - 1].Index].Name
+            } else {
+                lastTrans = time.Now().Unix()
+                prevS = 0
+                prevN = ""
+            }
+
+            // loop while futurePoint is within 4 years from last known transition
+            futurePoint := lastTrans
+            futureLimit := lastTrans + 4 * 31536000
+            for futurePoint < futureLimit {
+                // get zone for futurePoint and check if it has changed
+                name, offset, start, _, ok := tzset(extend, lastTrans, futurePoint)
+                if ok && (prevS != start && prevN != name) {
+                    tx = append(tx, EraTrans{When: start, Index: 255, AltName: name, AltOffset: offset})
+                    newTrans++
+                }
+                prevS = start
+                prevN = name
+
+                // move 30 days into the future
+                futurePoint += 2592000
+
+                // limit the amount of transitions to get
+                if newTrans == 4 {
+                    break
+                }
+            }
+        }
+
+        // Loop through new transitions, if any!
+        // This loop will check if any of the new transitions
+        // can be defined with any of the already defined eras.
+        ti := len(tx) - 1
+        for ; newTrans > 0; newTrans-- {
+            for ei := len(eras) - 1; ei >= 0; ei-- {
+                if tx[ti].AltName == eras[ei].Name && tx[ti].AltOffset == eras[ei].Offset {
+                    tx[ti].Index = uint8(ei)
+                    break
+                }
+            }
+            ti--
+        }
 
         l := &TZdata{Eras: eras, Trans: tx, Name: name, Extend: extend}
 

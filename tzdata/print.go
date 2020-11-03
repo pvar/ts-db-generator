@@ -18,10 +18,16 @@ func (tzd *TZdata) PrintRaw() {
         }
         fmt.Printf("    transitions:\n")
         for i, trans := range tzd.Trans {
+                var name string
+                if trans.Index != 255 {
+                    name = tzd.Eras[trans.Index].Name
+                } else {
+                    name = trans.AltName
+                }
                 fmt.Printf("        [%v] era: (%v) %-6s unix time: %-12v {isstd: %v, isutc: %v}\n",
                         i,
                         trans.Index,
-                        tzd.Eras[trans.Index].Name,
+                        name,
                         trans.When,
                         trans.Isstd,
                         trans.Isutc)

@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetData(t *testing.T) {
-    location := "America/Nuuk"
+    location := "Europe/Athens"
 
     data, err := GetData(location)
     if err != nil {
@@ -21,8 +21,13 @@ func TestGetData(t *testing.T) {
     fmt.Printf("\n")
 
     for i, trans := range data.Trans {
-        fmt.Printf("\n\t[%3d] Name: %-5q, Start: %d", i, data.Eras[trans.Index].Name, trans.When)
+        if trans.Index != 255 {
+            fmt.Printf("\n\t[%3d] Name: %6q\tStart: %d\tOffset: %d", i, data.Eras[trans.Index].Name, trans.When, data.Eras[trans.Index].Offset)
+        } else {
+            fmt.Printf("\n\t[%3d] Name: !%5q\tStart: %d\tOffset: %d", i, trans.AltName, trans.When, trans.AltOffset)
+        }
     }
+
     fmt.Printf("\n")
 
 }
