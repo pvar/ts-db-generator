@@ -1,4 +1,4 @@
-module ts-db-generator
+module github.com/pvar/ts-db-generator
 
 go 1.15
 

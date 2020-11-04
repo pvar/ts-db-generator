@@ -5,8 +5,8 @@ import (
     "fmt"
     "log"
     "time"
-    "ts-db-generator/tzdata"
-    "ts-db-generator/tzdb"
+    "github.com/pvar/ts-db-generator/tzdata"
+    "github.com/pvar/ts-db-generator/tzdb"
 )
 
 const dbfile = "./tsdb.sqlite"
