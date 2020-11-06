@@ -34,8 +34,8 @@ func GetZones (timezone string) (zones []Zone, err error) {
     // start from the most recent -- the last one
     // stop when a reliable table is found
     tableOk := false
-    for i := original.TabVer; i == 0; i-- {
-        zoneTable := fmt.Sprintf("%s%v", original.TabName, i)
+    for i := 0 ; i < 3; i++ {
+        zoneTable := fmt.Sprintf("%s%v", original.TabName, original.TabVer - int64(i))
         zones, err = getZones (zoneTable)
         if err != nil {
             // zone table unreliable
@@ -163,7 +163,7 @@ func GetOriginalByName(originalTZ string) (*Original, error) {
 // getZones retrieves all zones from specified table.
 func getZones (zoneTable string) (zones []Zone, err error) {
     if !tableExists(zoneTable) {
-        return nil, err
+        return nil, fmt.Errorf("Table not found!\n")
     }
 
     query := fmt.Sprintf("SELECT * FROM %s", zoneTable)
