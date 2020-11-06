@@ -7,7 +7,9 @@ import (
 
 func init() {
         fmt.Printf("\nStarting tests...\n")
-        Open ("./testdb.sqlite")
+        Open ("../tsdb.sqlite")
+
+        /*
         query := fmt.Sprintf("DELETE FROM %s", originalTable)
         stmt, _ := db.Prepare(query)
         stmt.Exec()
@@ -20,6 +22,15 @@ func init() {
         stmt, _ = db.Prepare(query)
         stmt.Exec()
         stmt.Close()
+        */
+}
+func TestGetZones(t *testing.T) {
+        zones, err := GetZones ("Europe/Athens")
+        if err != nil {
+                t.Errorf("%s", err)
+        } else {
+                fmt.Printf("%v\n", zones)
+        }
 }
 
 func TestAddOriginal(t *testing.T) {
