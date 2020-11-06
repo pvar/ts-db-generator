@@ -120,7 +120,7 @@ func BenchmarkGetOriginalByID(b *testing.B) {
 
 func BenchmarkGetOriginalByNane(b *testing.B) {
         for i := 0; i < b.N; i++ {
-                _, err := getOriginalByName ("Lamia")
+                _, err := GetOriginalByName ("Lamia")
                 if err != nil {
                         b.Errorf("%s", err)
                 }

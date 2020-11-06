@@ -117,7 +117,6 @@ func getCount (column, table string) (count int, err error) {
     return count, err
 }
 
-
 // getReplicaOriginal retrieves the original-ID for specified replica.
 func getReplicaOriginal (replicaTZ string) (originalID int, err error) {
     columns := getReplicaCols();
@@ -146,8 +145,8 @@ func getOriginalByID (originalID int) (*Original, error) {
     return &Original{ID: id, Name: name, DZone: zone, DOffset: offset, TabName: ztname, TabVer: ztver, TZDVer: tzdver}, nil
 }
 
-// getOriginalByName retrieves ID for a named origial TZ.
-func getOriginalByName(originalTZ string) (*Original, error) {
+// GetOriginalByName retrieves ID for a named origial TZ.
+func GetOriginalByName(originalTZ string) (*Original, error) {
     var name, dzone, ztname, tzdatver string
     var id, tzver, doffset int64
 

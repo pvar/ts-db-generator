@@ -56,7 +56,7 @@ func AddOriginal (originalTZ string) (id int64, err error) {
     // was already present in the database. Attempt to
     // retrieve data from stored instance...
     if err != nil {
-        original, err := getOriginalByName(originalTZ)
+        original, err := GetOriginalByName(originalTZ)
         // if no such original can be found,
         // something terrible is going on!
         if err != nil {
@@ -112,7 +112,7 @@ func AddZones (timezone string, zones []Zone) error {
         return noDB
     }
 
-    original, err := getOriginalByName(timezone)
+    original, err := GetOriginalByName(timezone)
     if err != nil {
         return err
     }
@@ -173,7 +173,7 @@ func UpdateReplica (replicaTZ, originalTZ string) error {
 
 // needOriginalID retrieves ID for named origial TZ or creates it.
 func needOriginalID (originalTZ string) (id int64, err error) {
-    origial, err := getOriginalByName(originalTZ)
+    origial, err := GetOriginalByName(originalTZ)
     if err != nil {
         // Could not get ID for specified original timezone.
         // Attempt to add it and get ID of new entry.
