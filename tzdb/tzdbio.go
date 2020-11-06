@@ -17,6 +17,22 @@ func init () {
     dbOpen = false
 }
 
+func OpenRO (filename string) error {
+    dsn := fmt.Sprintf("file:%s?cache=private&_locking=normal&mode=ro", filename)
+
+    dbObj, err := sql.Open("sqlite3", dsn)
+
+    if err != nil {
+        dbOpen = false
+        return err
+    }
+
+    dbOpen = true
+    db = dbObj
+
+    return nil
+}
+
 func Open (filename string) error {
     dsn := fmt.Sprintf("file:%s?cache=shared&mode=rwc&_journal_mode=WAL", filename)
 
