@@ -18,31 +18,31 @@ const source_path string = "/usr/share/zoneinfo/"
 // in use in a geographical area. For many Locations the time offset varies
 // depending on whether daylight savings time is in use.
 type TZdata struct {
-        Name  string
-        Eras  []Era
-        Trans []EraTrans
+	Name  string
+	Eras  []Era
+	Trans []EraTrans
 
-        // The tzdata information can be followed by a string that describes
-        // how to handle DST transitions not recorded in zoneTrans.
-        // The format is the TZ environment variable without a colon;
-        // https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html.
-        Extend string
+	// The tzdata information can be followed by a string that describes
+	// how to handle DST transitions not recorded in zoneTrans.
+	// The format is the TZ environment variable without a colon;
+	// https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html.
+	Extend string
 }
 
 // A zone represents a single time zone (CET, CEST, etc).
 type Era struct {
-        Name   string // abbreviated name of zone
-        Offset int    // seconds east of UTC
-        IsDST  bool   // is this zone Daylight Savings Time?
+	Name   string // abbreviated name of zone
+	Offset int    // seconds east of UTC
+	IsDST  bool   // is this zone Daylight Savings Time?
 }
 
 // A zoneTrans represents a single time zone transition.
 type EraTrans struct {
-        When         int64  // transition time, in seconds since 1970 GMT
-        Index        uint8  // index of the zone that goes into effect at that time
-        AltName      string // Zone name   -- used when Index == 255
-        AltOffset    int    // Zone offset -- used when Index == 255
-        Isstd, Isutc bool   // seems to be ignored
-        // supposed to indicate whether transition time (When)
-        // expressed in UTC or local
+	When         int64  // transition time, in seconds since 1970 GMT
+	Index        uint8  // index of the zone that goes into effect at that time
+	AltName      string // Zone name   -- used when Index == 255
+	AltOffset    int    // Zone offset -- used when Index == 255
+	Isstd, Isutc bool   // seems to be ignored
+	// supposed to indicate whether transition time (When)
+	// expressed in UTC or local
 }
