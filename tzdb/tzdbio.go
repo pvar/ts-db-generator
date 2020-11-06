@@ -68,7 +68,7 @@ func Close () error {
 
 func tableExists(tableName string) bool {
     var tempname string
-    query := fmt.Sprintf("SELECT name FROM sqlite_master WHERE type='table' AND name='{%s}';", tableName)
+    query := fmt.Sprintf("SELECT name FROM sqlite_sequence WHERE name='%s';", tableName)
     row := db.QueryRow(query)
     err := row.Scan(&tempname)
     if err != nil {
